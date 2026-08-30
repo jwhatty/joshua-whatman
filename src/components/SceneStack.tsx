@@ -1,0 +1,161 @@
+import { useEffect, useRef } from "react";
+import type { Section } from "@/lib/types";
+import { clamp } from "@/lib/utils";
+
+/** How close to a scroll snap point counts as "one scene owns the screen". */
+const SNAP_TOLERANCE_PX = 6;
+/** Wipe is close enough to done that the incoming scene takes clicks. */
+const INTERACTIVE_INSET = 4;
+/**
+ * Where inside a scroll segment the wipe actually runs. The gap either side is
+ * dwell — the current scene holds still for a beat after one wipe finishes and
+ * before the next begins, instead of them running back to back.
+ */
+const WIPE_START = 0.2;
+const WIPE_END = 0.8;
+
+type SceneState = "hidden" | "base" | "incoming";
+
+/** Cubic ease-in-out, so the shutter/door accelerates out and settles in. */
+function easeInOut(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+/**
+ * Visibility, stacking and pointer-events live in CSS keyed off `data-scene-state`.
+ * The only thing written from JS is `--scene-inset`, the value that actually
+ * animates frame by frame.
+ */
+function setLayerState(layer: HTMLDivElement | null, state: SceneState, inset?: number) {
+    if (!layer) return;
+    layer.dataset.sceneState = state;
+    layer.dataset.sceneInteractive = "false";
+    if (inset !== undefined) layer.style.setProperty("--scene-inset", `${inset}%`);
+}
+
+type SceneStackProps = {
+    sections: Section[];
+    activeId: string;
+    onActiveChange: (id: string) => void;
+};
+
+/** Turns scroll position into "which scene is on top" and animates the wipe between them. */
+export function SceneStack({ sections, activeId, onActiveChange }: SceneStackProps) {
+    const layers = useRef<(HTMLDivElement | null)[]>([]);
+    // which layer is the base right now, and whether we're parked on a snap point
+    const scene = useRef({ base: -1, locked: -1 });
+
+    useEffect(() => {
+        // cached so we're not reading layout on every scroll frame
+        let viewportHeight = window.innerHeight;
+
+        function update() {
+            const total = sections.length;
+            if (!viewportHeight || !total) return;
+
+            const scroll = window.scrollY;
+            const position = scroll / viewportHeight;
+
+            const nearest = clamp(Math.round(position), 0, total - 1);
+            const distance = Math.abs(scroll - nearest * viewportHeight);
+
+            // few pixels of slack to account for trackpad/magic mouse weirdness
+            if (distance <= SNAP_TOLERANCE_PX) {
+                onActiveChange(sections[nearest].id);
+
+                if (scene.current.locked !== nearest) {
+                    // show the active layer, hide everything else
+                    layers.current.forEach((layer, i) => {
+                        if (i === nearest) setLayerState(layer, "base", 0);
+                        else setLayerState(layer, "hidden", 50);
+                    });
+                    scene.current = { base: nearest, locked: nearest };
+                }
+                return;
+            }
+
+            const base = clamp(Math.floor(position), 0, total - 1);
+            const progress = clamp(position - base, 0, 1);
+            const incoming = base + 1;
+            const hasNext = incoming < total;
+
+            onActiveChange(sections[nearest].id);
+
+            // base layer changed since last frame, or we just came off a snap point
+            if (scene.current.base !== base || scene.current.locked !== -1) {
+                layers.current.forEach((layer, i) => {
+                    if (i === base) setLayerState(layer, "base", 0);
+                    // stage this one for the wipe below; its inset is set there
+                    else if (hasNext && i === incoming) setLayerState(layer, "incoming");
+                    // fully hidden, not just behind — "let's work" was bleeding through
+                    else setLayerState(layer, "hidden", 50);
+                });
+                scene.current = { base, locked: -1 };
+            }
+
+            if (!hasNext) return;
+            const nextLayer = layers.current[incoming];
+            if (!nextLayer) return;
+
+            // dwell either side, then ease the wipe rather than tracking scroll linearly
+            const wipe = clamp((progress - WIPE_START) / (WIPE_END - WIPE_START), 0, 1);
+            const inset = (1 - easeInOut(wipe)) * 50;
+            nextLayer.dataset.sceneState = "incoming";
+            nextLayer.dataset.sceneInteractive = inset < INTERACTIVE_INSET ? "true" : "false";
+            nextLayer.style.setProperty("--scene-inset", `${inset}%`);
+        }
+
+        // rAF-throttle the scroll handler
+        let raf: number | null = null;
+        function onScroll() {
+            if (raf !== null) return;
+            raf = requestAnimationFrame(() => {
+                raf = null;
+                update();
+            });
+        }
+
+        function onResize() {
+            viewportHeight = window.innerHeight;
+            update();
+        }
+
+        update();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onResize);
+
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onResize);
+            if (raf !== null) cancelAnimationFrame(raf);
+        };
+    }, [sections, onActiveChange]);
+
+    return (
+        <div className="scene-track" style={{ height: `${sections.length * 100}vh` }}>
+            <div className="scene-frame">
+                {sections.map((section, i) => (
+                    <div
+                        key={section.id}
+                        ref={(el) => {
+                            layers.current[i] = el;
+                        }}
+                        // alternate the wipe style down the stack
+                        className={`scene-layer ${i % 2 === 0 ? "scene-layer-door" : "scene-layer-shutter"}`}
+                        data-scene-state="hidden"
+                        style={{ background: section.bg, color: section.fg }}
+                    >
+                        {section.render(section.id === activeId)}
+                    </div>
+                ))}
+            </div>
+
+            {/* invisible markers so getElementById/scrollIntoView still work for nav clicks */}
+            <div className="scene-markers">
+                {sections.map((section) => (
+                    <div key={section.id} id={section.id} className="scene-marker" />
+                ))}
+            </div>
+        </div>
+    );
+}

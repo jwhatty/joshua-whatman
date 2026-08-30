@@ -206,6 +206,31 @@ body {
     will-change: clip-path;
     clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
     -webkit-clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
+
+    /* default = off screen; SceneStack drives data-scene-state as you scroll */
+    visibility: hidden;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* the scene currently owning the screen */
+.scene-layer[data-scene-state="base"] {
+    visibility: visible;
+    opacity: 1;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+/* the scene wiping in over it — only takes clicks once the wipe is nearly done */
+.scene-layer[data-scene-state="incoming"] {
+    visibility: visible;
+    opacity: 1;
+    z-index: 3;
+}
+
+.scene-layer[data-scene-state="incoming"][data-scene-interactive="true"] {
+    pointer-events: auto;
 }
 
 .scene-layer-door {
