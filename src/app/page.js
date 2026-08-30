@@ -21,6 +21,7 @@ function clamp(num, min, max) {
     return Math.min(Math.max(num, min), max);
 }
 // hero data
+
 const heroReel = {
     videoId: "MAIN_REEL",
     title: "Demo reel",
