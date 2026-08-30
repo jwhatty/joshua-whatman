@@ -11,14 +11,22 @@ const INTERACTIVE_INSET = 4;
  * dwell — the current scene holds still for a beat after one wipe finishes and
  * before the next begins, instead of them running back to back.
  */
-const WIPE_START = 0.2;
-const WIPE_END = 0.8;
+const WIPE_START = 0.15;
+const WIPE_END = 0.85;
 
 type SceneState = "hidden" | "base" | "incoming";
 
-/** Cubic ease-in-out, so the shutter/door accelerates out and settles in. */
+/**
+ * Smoothstep — soft start, soft stop. Unlike a cubic ease-in-out it doesn't cram
+ * half the travel into the middle third, so the doors glide instead of snapping
+ * through the centre.
+ *
+ * How fast the doors move at their quickest is (the curve's peak slope) divided
+ * by (WIPE_END - WIPE_START): 1.5 / 0.7 here. Widening the window slows them
+ * down but eats into the dwell between scenes — those are the two dials.
+ */
 function easeInOut(t: number): number {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return t * t * (3 - 2 * t);
 }
 
 /**
