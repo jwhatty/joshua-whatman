@@ -35,7 +35,7 @@ const categories = [
         color: CREAM,
         fg: INK,
         main: "t-uK94HaxeM",
-        mainTitle: "Sound Redesign • Into The Spider-Verse",
+        mainTitle: "Sound Poop • Into The Spider-Verse",
         mainThumbnail: "/thumbnails/sdthumbnail1.png",
         extras: [
             { title: "Design Reel 2", videoId: "SOUND_REEL_2" },
