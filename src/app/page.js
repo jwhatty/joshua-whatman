@@ -9,7 +9,7 @@ const body = Archivo({ subsets: ["latin"], weight: ["400", "500", "600", "700", 
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 // flip these to turn sections on/off
-const SHOW_SOUND_DESIGN = true;
+const SHOW_SOUND_DESIGN = false;
 const SHOW_COMPOSITION = false;
 const SHOW_AUDIO_EDITING = false;
 
@@ -23,8 +23,9 @@ function clamp(num, min, max) {
 // hero data
 
 const heroReel = {
-    videoId: "MAIN_REEL",
-    title: "Demo reel",
+    videoId: "t-uK94HaxeM",
+    title: "Sound Redesign Demo • Into The Spider-Verse",
+    thumbnail: "/thumbnails/sdthumbnail1.png",
 };
 // category data
 const categories = [
@@ -514,7 +515,7 @@ function Hero({ active }) {
                     </div>
 
                     <div className="hero-title-block">
-                        <p className={`${mono.className} hero-eyebrow`}>SOUND DESIGNER • DIGITAL MEDIA</p>
+                        <p className={`${mono.className} hero-eyebrow`}>SOUND DESIGNER • MUSIC PRODUCER • DIGITAL MEDIA</p>
 
                         <div className="hero-scroll-cue-slot">
                             <button
@@ -523,7 +524,7 @@ function Hero({ active }) {
                                 onClick={scrollToWork}
                                 aria-label="Scroll to selected work"
                             >
-                                <span>SELECTED WORKS</span>
+                                <span>Learn More</span>
                                 <span className="hero-scroll-arrow">↓</span>
                             </button>
                         </div>
@@ -532,7 +533,7 @@ function Hero({ active }) {
             </div>
 
             <div className="hero-reel">
-                <VideoFrame videoId={heroReel.videoId} title={heroReel.title} active={active} />
+                <VideoFrame videoId={heroReel.videoId} title={heroReel.title} thumbnail={heroReel.thumbnail} active={active} />
                 <p className={`${mono.className} hero-reel-caption`}>{heroReel.title}</p>
 
                 <button
@@ -688,14 +689,16 @@ function About() {
                     </p>
 
                     <p>
-                        I’ve worked in audio for more than 15 years, across music production,
-                        studio recording, audio post, radio, concert production, live recording, and more.
+                        I fell in love with audio in Winnipeg over 15 years ago. Since then I have obsessed relentlessly,
+                        learning everything I could about music production, recording, audio post, radio, concert
+                        production, live recording, and more. I've been lucky enough to sit in as an intern on professional studio sessions.
+                        I operated my own studio in Winnipeg, engineering local artists. I worked for 101.5 UMFM crafting a talk show from scratch.
                         That range of experience, along with my (at times, unsettling) passion for this craft
                         has given me a deep and practical understanding of sound and audio
                         production, informing every detail in my work today.
                     </p>
 
-                    <p>Audio can make or break a project. If you need someone who will obsess over every detail of your project, I'm your guy.</p>
+                    <p>Audio can make or break your work. If you need someone who will obsess over every detail, I'm your guy.</p>
                 </div>
             </div>
         </div>
