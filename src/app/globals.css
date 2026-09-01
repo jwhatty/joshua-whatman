@@ -404,6 +404,10 @@ body {
         animation: none;
     }
 
+    .video-wave-bar {
+        animation: none;
+    }
+
     .site-header {
         transition: none;
     }
@@ -783,6 +787,12 @@ body {
         bottom: 8px;
         font-size: 0.6rem;
     }
+
+    .video-duration {
+        right: 10px;
+        bottom: 8px;
+        font-size: 0.6rem;
+    }
 }
 
 /* ================================================== */
@@ -836,6 +846,66 @@ body {
     z-index: 0;
 
     transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+/* Poster waveform — shown when a reel has no thumbnail. Bars are frozen
+   mid-animation at idle (negative delays scatter the phases, so the freeze
+   frame reads as a real waveform) and start dancing on hover/focus. */
+.video-wave {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 9%;
+}
+
+.video-wave-bar {
+    flex: 1 1 0;
+    min-width: 1px;
+    height: calc(var(--bar-scale, 0.5) * 30%);
+    background: var(--cream);
+    opacity: 0.4;
+
+    transform-origin: center;
+    animation: video-wave-dance 1.05s ease-in-out infinite;
+    animation-delay: var(--bar-delay, 0ms);
+    animation-play-state: paused;
+    transition: opacity 0.35s ease;
+}
+
+.video-placeholder:hover .video-wave-bar,
+.video-placeholder:focus-visible .video-wave-bar {
+    animation-play-state: running;
+    opacity: 0.85;
+}
+
+@keyframes video-wave-dance {
+    0%, 100% {
+        transform: scaleY(0.4);
+    }
+
+    50% {
+        transform: scaleY(1.45);
+    }
+}
+
+.video-duration {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    z-index: 4;
+
+    font-size: 0.76rem;
+    line-height: 1.4;
+    letter-spacing: 0.07em;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.2s ease;
+}
+
+.video-placeholder:hover .video-duration {
+    color: rgba(255, 255, 255, 1);
 }
 
 .video-thumbnail-overlay {

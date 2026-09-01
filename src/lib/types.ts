@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 export type Video = {
     videoId: string;
     title: string;
+    thumbnail?: string;
+    /** Runtime shown on the poster, e.g. "01:24" — clicking feels bounded. */
+    duration?: string;
 };
 
 export type Category = {
@@ -17,6 +20,7 @@ export type Category = {
     main: string;
     mainTitle: string;
     mainThumbnail?: string;
+    mainDuration?: string;
     extras: Video[];
 };
 

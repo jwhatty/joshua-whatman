@@ -14,6 +14,8 @@ export const CONTACT_FG = "#fafafa";
 export const heroReel: Video = {
     videoId: "MAIN_REEL",
     title: "Demo reel",
+    // placeholder like the videoId — set from the real reel when it exists
+    duration: "01:24",
 };
 
 export const categories: Category[] = [

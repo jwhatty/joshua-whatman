@@ -59,6 +59,7 @@ export function WorkSection({ category, active }: WorkSectionProps) {
                         videoId={category.main}
                         title={category.mainTitle}
                         thumbnail={category.mainThumbnail}
+                        duration={category.mainDuration}
                         className="work-main"
                         active={active}
                     />
@@ -69,6 +70,8 @@ export function WorkSection({ category, active }: WorkSectionProps) {
                                 key={video.videoId}
                                 videoId={video.videoId}
                                 title={video.title}
+                                thumbnail={video.thumbnail}
+                                duration={video.duration}
                                 className="work-extra"
                                 active={active}
                             />

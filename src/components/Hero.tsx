@@ -49,7 +49,13 @@ export function Hero({ active }: { active: boolean }) {
             </div>
 
             <div className="hero-reel">
-                <VideoFrame videoId={heroReel.videoId} title={heroReel.title} active={active} />
+                <VideoFrame
+                    videoId={heroReel.videoId}
+                    title={heroReel.title}
+                    thumbnail={heroReel.thumbnail}
+                    duration={heroReel.duration}
+                    active={active}
+                />
                 <p className={`${monoFont.className} hero-reel-caption`}>{heroReel.title}</p>
 
                 <button
