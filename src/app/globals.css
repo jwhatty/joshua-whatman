@@ -233,14 +233,114 @@ body {
     pointer-events: auto;
 }
 
-.scene-layer-door {
-    clip-path: inset(0% var(--scene-inset) 0% var(--scene-inset));
-    -webkit-clip-path: inset(0% var(--scene-inset) 0% var(--scene-inset));
+/* Wipe edges carry a waveform: square teeth of varying depth, generated in
+   the same bar language as the video posters. Teeth reach OUTWARD from the
+   revealed band and are scaled by --seam-amp, so a parked scene (amp 0) has
+   dead-straight edges and the serration only exists while the doors move. */
+.scene-layer-shutter {
+    clip-path: polygon(
+        0% calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)),
+        8.33% calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)),
+        8.33% calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)),
+        16.67% calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)),
+        16.67% calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)),
+        25% calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)),
+        25% calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)),
+        33.33% calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)),
+        33.33% calc(var(--scene-inset) - 1% * var(--seam-amp, 0)),
+        41.67% calc(var(--scene-inset) - 1% * var(--seam-amp, 0)),
+        41.67% calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)),
+        50% calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)),
+        50% calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)),
+        58.33% calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)),
+        58.33% calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)),
+        66.67% calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)),
+        66.67% calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)),
+        75% calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)),
+        75% calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)),
+        83.33% calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)),
+        83.33% calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)),
+        91.67% calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)),
+        91.67% calc(var(--scene-inset) - 2% * var(--seam-amp, 0)),
+        100% calc(var(--scene-inset) - 2% * var(--seam-amp, 0)),
+        100% calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)),
+        91.67% calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)),
+        91.67% calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)),
+        83.33% calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)),
+        83.33% calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)),
+        75% calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)),
+        75% calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)),
+        66.67% calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)),
+        66.67% calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)),
+        58.33% calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)),
+        58.33% calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)),
+        50% calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)),
+        50% calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)),
+        41.67% calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)),
+        41.67% calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)),
+        33.33% calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)),
+        33.33% calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)),
+        25% calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)),
+        25% calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)),
+        16.67% calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)),
+        16.67% calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)),
+        8.33% calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)),
+        8.33% calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)),
+        0% calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0))
+    );
 }
 
-.scene-layer-shutter {
-    clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
-    -webkit-clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
+.scene-layer-door {
+    clip-path: polygon(
+        calc(var(--scene-inset) - 2% * var(--seam-amp, 0)) 100%,
+        calc(var(--scene-inset) - 2% * var(--seam-amp, 0)) 91.67%,
+        calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)) 91.67%,
+        calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)) 83.33%,
+        calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)) 83.33%,
+        calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)) 75%,
+        calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)) 75%,
+        calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)) 66.67%,
+        calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)) 66.67%,
+        calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)) 58.33%,
+        calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)) 58.33%,
+        calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)) 50%,
+        calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)) 50%,
+        calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)) 41.67%,
+        calc(var(--scene-inset) - 1% * var(--seam-amp, 0)) 41.67%,
+        calc(var(--scene-inset) - 1% * var(--seam-amp, 0)) 33.33%,
+        calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)) 33.33%,
+        calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)) 25%,
+        calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)) 25%,
+        calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)) 16.67%,
+        calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)) 16.67%,
+        calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)) 8.33%,
+        calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)) 8.33%,
+        calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)) 0%,
+        calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)) 0%,
+        calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)) 8.33%,
+        calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)) 8.33%,
+        calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)) 16.67%,
+        calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)) 16.67%,
+        calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)) 25%,
+        calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)) 25%,
+        calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)) 33.33%,
+        calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)) 33.33%,
+        calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)) 41.67%,
+        calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)) 41.67%,
+        calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)) 50%,
+        calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)) 50%,
+        calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)) 58.33%,
+        calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)) 58.33%,
+        calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)) 66.67%,
+        calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)) 66.67%,
+        calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)) 75%,
+        calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)) 75%,
+        calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)) 83.33%,
+        calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)) 83.33%,
+        calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)) 91.67%,
+        calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)) 91.67%,
+        calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)) 100%
+    );
 }
 
 .scene-markers {
@@ -1263,10 +1363,303 @@ body {
 }
 
 /* ================================================== */
+/* HERO CTAS                                         */
+/* ================================================== */
+
+/* the primary cue, promoted to a real button (also skins the mobile cue) */
+.hero-cta {
+    border: 1px solid currentColor;
+    padding: 0.85em 1.4em;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.hero-cta:hover {
+    background-color: var(--cream);
+    color: var(--ink);
+    transform: translateY(-2px);
+}
+
+/* second CTA: fixed to the bottom of the opening scene, fades as you scroll */
+.hero-contact-cue {
+    position: fixed;
+    z-index: 90;
+    left: 50%;
+    bottom: 2.3rem;
+    transform: translateX(-50%);
+
+    appearance: none;
+    border: 0;
+    padding: 0.4rem 0.6rem;
+    margin: 0;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    mix-blend-mode: difference;
+
+    font-size: 0.78rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .hero-contact-cue {
+        bottom: 1.4rem;
+        font-size: 0.62rem;
+    }
+}
+
+@media (max-width: 900px) and (max-height: 560px) {
+    .hero-contact-cue {
+        display: none;
+    }
+}
+
+/* ================================================== */
+/* PLAYHEAD CHROME                                   */
+/* ================================================== */
+
+.site-nav-index {
+    position: relative;
+    top: -0.45em;
+    margin-right: 0.5em;
+    font-size: 0.62em;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+}
+
+.playhead-timecode {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 60;
+
+    color: #fff;
+    mix-blend-mode: difference;
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.sound-toggle {
+    position: fixed;
+    left: 2rem;
+    bottom: 2rem;
+    z-index: 95;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    appearance: none;
+    border: 0;
+    padding: 0.3rem 0;
+    margin: 0;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    mix-blend-mode: difference;
+
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.sound-toggle:hover {
+    opacity: 1;
+}
+
+.sound-toggle-meter {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 11px;
+}
+
+.sound-toggle-bar {
+    width: 3px;
+    height: 100%;
+    background: currentColor;
+    transform-origin: bottom;
+    transform: scaleY(0.25);
+    transition: transform 0.3s ease;
+}
+
+.sound-toggle-on .sound-toggle-bar {
+    animation: sound-bar-dance 0.9s ease-in-out infinite;
+}
+
+.sound-toggle-on .sound-toggle-bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.sound-toggle-on .sound-toggle-bar:nth-child(3) {
+    animation-delay: -0.6s;
+}
+
+@keyframes sound-bar-dance {
+    0%, 100% {
+        transform: scaleY(0.3);
+    }
+
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+/* film slate flashing mid-wipe; opacity is written by Slate off the playhead */
+.slate {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+
+    color: #fff;
+    mix-blend-mode: difference;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.slate-line {
+    display: block;
+    padding: 0.5rem 1.4rem;
+    font-size: 0.78rem;
+    line-height: 1;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.slate-line:first-child {
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+}
+
+.slate-take {
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    opacity: 0.75;
+}
+
+@media (max-width: 700px) {
+    .playhead-timecode {
+        right: 1.2rem;
+        bottom: 1.2rem;
+        font-size: 0.6rem;
+    }
+
+    .sound-toggle {
+        left: 1.2rem;
+        bottom: 1.2rem;
+        font-size: 0.6rem;
+    }
+
+    .slate-line {
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+    }
+}
+
+/* ================================================== */
+/* CONTACT METER                                     */
+/* ================================================== */
+
+.contact-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+/* the headline hits a limiter when the email is pressed */
+.contact-line {
+    transform-origin: center bottom;
+    transition: transform 0.09s ease;
+}
+
+.contact-inner:has(.contact-link:active) .contact-line {
+    transform: scaleY(0.93);
+}
+
+.contact-meter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 8px;
+}
+
+.contact-meter-seg {
+    width: 14px;
+    height: 4px;
+    background: var(--cream);
+    opacity: 0.14;
+    transform: scaleY(0.6);
+
+    /* off-state: decay from the right, like a meter falling back */
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    transition-delay: calc((11 - var(--seg-i)) * 26ms);
+}
+
+/* the hot end of the scale */
+.contact-meter-hot {
+    background: #c25548;
+}
+
+.contact-cta:hover .contact-meter-seg,
+.contact-cta:focus-within .contact-meter-seg {
+    opacity: 1;
+    transform: scaleY(1);
+    transition-delay: calc(var(--seg-i) * 24ms);
+}
+
+/* peak LED holds a beat before dropping */
+.contact-meter-seg:last-child {
+    transition-delay: calc((11 - var(--seg-i)) * 26ms + 420ms);
+}
+
+.contact-cta:hover .contact-meter-seg:last-child,
+.contact-cta:focus-within .contact-meter-seg:last-child {
+    transition-delay: calc(var(--seg-i) * 24ms);
+}
+
+/* ================================================== */
 /* ACCESSIBILITY                                     */
 /* ================================================== */
 
 *:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slate {
+        display: none;
+    }
+
+    .sound-toggle-on .sound-toggle-bar {
+        animation: none;
+        transform: scaleY(0.8);
+    }
+
+    .hero-cta,
+    .contact-line,
+    .contact-meter-seg {
+        transition: none;
+    }
 }

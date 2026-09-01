@@ -1,6 +1,7 @@
 import { VideoFrame } from "@/components/VideoFrame";
 import { heroReel, visibleCategories } from "@/lib/data";
 import { displayFont, monoFont } from "@/lib/fonts";
+import { soundEngine } from "@/lib/sound";
 import { scrollToId } from "@/lib/utils";
 
 // fall back to "about" if every work category is switched off
@@ -36,8 +37,9 @@ export function Hero({ active }: { active: boolean }) {
                         <div className="hero-scroll-cue-slot">
                             <button
                                 type="button"
-                                className={`${monoFont.className} hero-scroll-cue-static`}
+                                className={`${monoFont.className} hero-scroll-cue-static hero-cta`}
                                 onClick={scrollToWork}
+                                onMouseEnter={() => soundEngine.tick()}
                                 aria-label="Scroll to selected work"
                             >
                                 <span>SELECTED WORKS</span>
@@ -60,7 +62,7 @@ export function Hero({ active }: { active: boolean }) {
 
                 <button
                     type="button"
-                    className={`${monoFont.className} hero-scroll-cue-mobile`}
+                    className={`${monoFont.className} hero-scroll-cue-mobile hero-cta`}
                     onClick={scrollToWork}
                     aria-label="Scroll to selected work"
                 >

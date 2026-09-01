@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { monoFont } from "@/lib/fonts";
+import { soundEngine } from "@/lib/sound";
 import type { YouTubePlayer } from "@/lib/types";
 
 const YT_ALLOW =
@@ -112,6 +113,7 @@ export function VideoFrame({ videoId, title, thumbnail, duration, active = true 
                 <button
                     type="button"
                     onClick={() => setStarted(true)}
+                    onMouseEnter={() => soundEngine.tick()}
                     className="video-placeholder"
                     aria-label={`Play ${title}`}
                 >

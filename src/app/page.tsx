@@ -7,6 +7,9 @@ import { Hero } from "@/components/Hero";
 import { NavBar } from "@/components/NavBar";
 import { SceneStack } from "@/components/SceneStack";
 import { ScrollHint } from "@/components/ScrollHint";
+import { Slate } from "@/components/Slate";
+import { SoundToggle } from "@/components/SoundToggle";
+import { Timecode } from "@/components/Timecode";
 import { WorkSection } from "@/components/WorkSection";
 import { ABOUT_BG, CONTACT_BG, CONTACT_FG, CREAM, INK, visibleCategories } from "@/lib/data";
 import { bodyFont } from "@/lib/fonts";
@@ -34,6 +37,9 @@ export default function Home() {
             <NavBar activeId={activeId} />
             <SceneStack sections={sections} activeId={activeId} onActiveChange={setActiveId} />
             <ScrollHint activeId={activeId} />
+            <Slate />
+            <Timecode />
+            <SoundToggle />
         </main>
     );
 }

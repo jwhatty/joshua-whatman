@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CREAM, navItems, sectionLogoColors } from "@/lib/data";
 import { monoFont } from "@/lib/fonts";
+import { soundEngine } from "@/lib/sound";
 import { scrollToId } from "@/lib/utils";
 
 /** True once the page is scrolled past `fraction` of a viewport height. */
@@ -35,13 +36,15 @@ export function NavBar({ activeId }: { activeId: string }) {
             </button>
 
             <nav className={`${monoFont.className} site-nav`} style={{ color: sectionColor }}>
-                {navItems.map((item) => (
+                {navItems.map((item, i) => (
                     <button
                         key={item.id}
                         type="button"
                         className={activeId === item.id ? "site-nav-item active" : "site-nav-item"}
                         onClick={() => scrollToId(item.id)}
+                        onMouseEnter={() => soundEngine.tick()}
                     >
+                        <span className="site-nav-index">{String(i + 1).padStart(2, "0")}</span>
                         {item.label}
                     </button>
                 ))}

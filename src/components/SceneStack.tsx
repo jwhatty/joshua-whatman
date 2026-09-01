@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { publishPlayhead } from "@/lib/playhead";
 import type { Section } from "@/lib/types";
 import { clamp } from "@/lib/utils";
 
@@ -31,14 +32,18 @@ function easeInOut(t: number): number {
 
 /**
  * Visibility, stacking and pointer-events live in CSS keyed off `data-scene-state`.
- * The only thing written from JS is `--scene-inset`, the value that actually
- * animates frame by frame.
+ * The only things written from JS are `--scene-inset` (how far the wipe has
+ * travelled) and `--seam-amp` (how tall the waveform teeth on its edge are —
+ * zero at both ends of the wipe so parked scenes always have straight edges).
  */
 function setLayerState(layer: HTMLDivElement | null, state: SceneState, inset?: number) {
     if (!layer) return;
     layer.dataset.sceneState = state;
     layer.dataset.sceneInteractive = "false";
-    if (inset !== undefined) layer.style.setProperty("--scene-inset", `${inset}%`);
+    if (inset !== undefined) {
+        layer.style.setProperty("--scene-inset", `${inset}%`);
+        layer.style.setProperty("--seam-amp", "0");
+    }
 }
 
 type SceneStackProps = {
@@ -70,6 +75,7 @@ export function SceneStack({ sections, activeId, onActiveChange }: SceneStackPro
             // few pixels of slack to account for trackpad/magic mouse weirdness
             if (distance <= SNAP_TOLERANCE_PX) {
                 onActiveChange(sections[nearest].id);
+                publishPlayhead({ position, base: nearest, incoming: -1, wipe: 0, total });
 
                 if (scene.current.locked !== nearest) {
                     // show the active layer, hide everything else
@@ -101,16 +107,22 @@ export function SceneStack({ sections, activeId, onActiveChange }: SceneStackPro
                 scene.current = { base, locked: -1 };
             }
 
-            if (!hasNext) return;
+            if (!hasNext) {
+                publishPlayhead({ position, base, incoming: -1, wipe: 0, total });
+                return;
+            }
             const nextLayer = layers.current[incoming];
             if (!nextLayer) return;
 
             // dwell either side, then ease the wipe rather than tracking scroll linearly
             const wipe = clamp((progress - WIPE_START) / (WIPE_END - WIPE_START), 0, 1);
-            const inset = (1 - easeInOut(wipe)) * 50;
+            const eased = easeInOut(wipe);
+            const inset = (1 - eased) * 50;
+            publishPlayhead({ position, base, incoming, wipe: eased, total });
             nextLayer.dataset.sceneState = "incoming";
             nextLayer.dataset.sceneInteractive = inset < INTERACTIVE_INSET ? "true" : "false";
             nextLayer.style.setProperty("--scene-inset", `${inset}%`);
+            nextLayer.style.setProperty("--seam-amp", Math.sin(Math.PI * eased).toFixed(3));
         }
 
         // rAF-throttle the scroll handler
