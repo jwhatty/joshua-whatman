@@ -600,16 +600,6 @@ body {
     width: 100%;
 }
 
-.hero-reel-caption {
-    /* the video above is width-capped and centered; share its box so the
-       caption's left edge sits on the video's left edge, not the column's */
-    width: min(100%, calc(var(--video-cap) * 16 / 9));
-    margin: var(--space-xs) auto 0;
-    font-size: 0.84rem;
-    line-height: 1.45;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
-}
 
 @media (max-width: 1100px) {
     .hero-inner {
@@ -882,6 +872,12 @@ body {
         font-size: 0.6rem;
     }
 
+    .video-title-large {
+        left: 12px;
+        bottom: 10px;
+        font-size: 0.9rem;
+    }
+
     .video-duration {
         right: 10px;
         bottom: 8px;
@@ -1015,6 +1011,29 @@ body {
 .video-placeholder:hover .video-thumbnail {
     transform: scale(1.025);
     filter: brightness(0.9);
+}
+
+/* record-sleeve poster: the film ghosts under the waveform, nearly black,
+   and surfaces a touch when the frame is hovered */
+.video-thumbnail-dim {
+    opacity: 0.14;
+    filter: grayscale(1) brightness(0.75) contrast(1.05);
+}
+
+.video-placeholder:hover .video-thumbnail-dim {
+    opacity: 0.24;
+    filter: grayscale(1) brightness(0.85) contrast(1.05);
+    transform: scale(1.025);
+}
+
+/* the wave poster's title sets large, in the display face */
+.video-title-large {
+    left: 18px;
+    bottom: 15px;
+    font-size: clamp(1rem, 1.6vw, 1.5rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .video-grain {
@@ -1272,9 +1291,6 @@ body {
         width: 100%;
     }
 
-    .hero-reel-caption {
-        font-size: 0.66rem;
-    }
 
     /* work: monitor and cue list side by side again */
     .work-heading {

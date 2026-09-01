@@ -85,8 +85,8 @@ export function Hero({ active }: { active: boolean }) {
                     thumbnail={heroReel.thumbnail}
                     duration={heroReel.duration}
                     active={active}
+                    wavePoster
                 />
-                <p className={`${monoFont.className} hero-reel-caption`}>{heroReel.title}</p>
 
                 <button
                     type="button"

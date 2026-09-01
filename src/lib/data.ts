@@ -15,6 +15,8 @@ export const CONTACT_FG = "#fafafa";
 export const heroReel: Video = {
     videoId: "t-uK94HaxeM",
     title: "Demo reel",
+    // ghosted under the hero's waveform poster, nearly blacked out
+    thumbnail: "/thumbnails/sdthumbnail1.png",
     duration: "01:24",
 };
 

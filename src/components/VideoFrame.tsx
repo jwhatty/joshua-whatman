@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { monoFont } from "@/lib/fonts";
+import { displayFont, monoFont } from "@/lib/fonts";
 import { soundEngine } from "@/lib/sound";
 
 const YT_ALLOW =
@@ -27,6 +27,12 @@ type VideoFrameProps = {
     active?: boolean;
     /** Mount already playing — for cue-list loads, where the click was the intent. */
     autoPlay?: boolean;
+    /**
+     * Record-sleeve poster: the waveform stays the face of the frame, the
+     * thumbnail sits under it nearly blacked out, and the title sets large in
+     * the display face. The hero wears this; work monitors show their art.
+     */
+    wavePoster?: boolean;
 };
 
 /**
@@ -42,6 +48,7 @@ export function VideoFrame({
     duration,
     active = true,
     autoPlay = false,
+    wavePoster = false,
 }: VideoFrameProps) {
     const frameRef = useRef<HTMLDivElement>(null);
     const [started, setStarted] = useState(autoPlay);
@@ -89,9 +96,14 @@ export function VideoFrame({
                     className="video-placeholder"
                     aria-label={`Play ${title}`}
                 >
-                    {thumbnail ? (
-                        <img src={thumbnail} alt="" className="video-thumbnail" />
-                    ) : (
+                    {thumbnail && (
+                        <img
+                            src={thumbnail}
+                            alt=""
+                            className={`video-thumbnail ${wavePoster ? "video-thumbnail-dim" : ""}`}
+                        />
+                    )}
+                    {(wavePoster || !thumbnail) && (
                         // paused waveform; hovering the frame sets it dancing
                         <span className="video-wave" aria-hidden="true">
                             {waveHeights.map((height, i) => (
@@ -113,7 +125,15 @@ export function VideoFrame({
                     <span className="video-play">
                         <span className="video-play-icon" />
                     </span>
-                    <span className={`${monoFont.className} video-title`}>{title}</span>
+                    <span
+                        className={
+                            wavePoster
+                                ? `${displayFont.className} video-title video-title-large`
+                                : `${monoFont.className} video-title`
+                        }
+                    >
+                        {title}
+                    </span>
                     {duration && (
                         <span className={`${monoFont.className} video-duration`}>{duration}</span>
                     )}
