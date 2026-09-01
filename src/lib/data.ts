@@ -11,10 +11,10 @@ export const ABOUT_BG = "#000000";
 export const CONTACT_BG = "#0a0a0a";
 export const CONTACT_FG = "#fafafa";
 
+// TODO: real demo reel — reusing the Spider-Verse video until it exists
 export const heroReel: Video = {
-    videoId: "MAIN_REEL",
+    videoId: "t-uK94HaxeM",
     title: "Demo reel",
-    // placeholder like the videoId — set from the real reel when it exists
     duration: "01:24",
 };
 
@@ -34,8 +34,9 @@ export const categories: Category[] = [
                 title: "Sound Redesign • Into The Spider-Verse",
                 thumbnail: "/thumbnails/sdthumbnail1.png",
             },
-            { title: "Design Reel 2", videoId: "SOUND_REEL_2" },
-            { title: "Design Reel 3", videoId: "SOUND_REEL_3" },
+            // TODO: real reels — reusing the Spider-Verse video until they exist
+            { title: "Design Reel 2", videoId: "t-uK94HaxeM" },
+            { title: "Design Reel 3", videoId: "t-uK94HaxeM" },
         ],
     },
     {

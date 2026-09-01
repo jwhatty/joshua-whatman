@@ -57,9 +57,10 @@ export function WorkSection({ category, active }: WorkSectionProps) {
 
             <div className="work-deck">
                 <div className="work-monitor">
-                    {/* keyed so picking a cue remounts the player fresh */}
+                    {/* keyed by cue position, not video id — ids can repeat
+                        while placeholders share one video */}
                     <VideoFrame
-                        key={`${current.videoId}-${engaged}`}
+                        key={`${selected}-${engaged}`}
                         videoId={current.videoId}
                         title={current.title}
                         thumbnail={current.thumbnail}
@@ -75,7 +76,7 @@ export function WorkSection({ category, active }: WorkSectionProps) {
 
                     {videos.map((video, i) => (
                         <button
-                            key={video.videoId}
+                            key={i}
                             type="button"
                             className={`cue-row ${i === selected ? "cue-row-active" : ""}`}
                             onClick={() => loadCue(i)}
