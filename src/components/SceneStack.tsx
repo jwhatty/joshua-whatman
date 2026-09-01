@@ -75,7 +75,9 @@ export function SceneStack({ sections, activeId, onActiveChange }: SceneStackPro
             // few pixels of slack to account for trackpad/magic mouse weirdness
             if (distance <= SNAP_TOLERANCE_PX) {
                 onActiveChange(sections[nearest].id);
-                publishPlayhead({ position, base: nearest, incoming: -1, wipe: 0, total });
+                // publish the snapped integer, not the raw scroll — parked means
+                // parked, so the timecode reads an even minute, not 00:59:23
+                publishPlayhead({ position: nearest, base: nearest, incoming: -1, wipe: 0, total });
 
                 if (scene.current.locked !== nearest) {
                     // show the active layer, hide everything else
@@ -108,7 +110,7 @@ export function SceneStack({ sections, activeId, onActiveChange }: SceneStackPro
             }
 
             if (!hasNext) {
-                publishPlayhead({ position, base, incoming: -1, wipe: 0, total });
+                publishPlayhead({ position: base, base, incoming: -1, wipe: 0, total });
                 return;
             }
             const nextLayer = layers.current[incoming];
@@ -118,7 +120,10 @@ export function SceneStack({ sections, activeId, onActiveChange }: SceneStackPro
             const wipe = clamp((progress - WIPE_START) / (WIPE_END - WIPE_START), 0, 1);
             const eased = easeInOut(wipe);
             const inset = (1 - eased) * 50;
-            publishPlayhead({ position, base, incoming, wipe: eased, total });
+            // the playhead follows the wipe, not the raw scroll: whenever the
+            // screen looks parked (both dwell zones included), it reads an even
+            // minute instead of drifting to 00:59:xx a few pixels shy of the snap
+            publishPlayhead({ position: base + eased, base, incoming, wipe: eased, total });
             nextLayer.dataset.sceneState = "incoming";
             nextLayer.dataset.sceneInteractive = inset < INTERACTIVE_INSET ? "true" : "false";
             nextLayer.style.setProperty("--scene-inset", `${inset}%`);
