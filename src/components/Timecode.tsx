@@ -10,9 +10,10 @@ function pad(n: number): string {
 /**
  * SMPTE-style readout of the playhead — one scene scrubs one minute, frames
  * at 24fps. Written straight to the text node from the playhead bus so it
- * ticks every scroll frame without a single re-render.
+ * ticks every scroll frame without a single re-render. While sound is on, a
+ * red REC tally blinks beside it: the session is rolling.
  */
-export function Timecode() {
+export function Timecode({ rec = false }: { rec?: boolean }) {
     const ref = useRef<HTMLSpanElement>(null);
 
     useEffect(
@@ -31,8 +32,12 @@ export function Timecode() {
     );
 
     return (
-        <span ref={ref} className={`${monoFont.className} playhead-timecode`} aria-hidden="true">
-            00:00:00
+        <span className={`${monoFont.className} playhead-timecode`} aria-hidden="true">
+            {/* outside the digits' difference blend so the red stays red on cream scenes */}
+            {rec && <span className="timecode-rec">● REC</span>}
+            <span ref={ref} className="timecode-digits">
+                00:00:00
+            </span>
         </span>
     );
 }

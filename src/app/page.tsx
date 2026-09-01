@@ -31,6 +31,7 @@ const sections: Section[] = [
 
 export default function Home() {
     const [activeId, setActiveId] = useState("hero");
+    const [soundOn, setSoundOn] = useState(false);
 
     return (
         <main className={`${bodyFont.className} site`}>
@@ -38,8 +39,8 @@ export default function Home() {
             <SceneStack sections={sections} activeId={activeId} onActiveChange={setActiveId} />
             <ScrollHint activeId={activeId} />
             <Slate />
-            <Timecode />
-            <SoundToggle />
+            <Timecode rec={soundOn} />
+            <SoundToggle on={soundOn} onToggle={setSoundOn} />
             <div className="film-grain" aria-hidden="true" />
         </main>
     );

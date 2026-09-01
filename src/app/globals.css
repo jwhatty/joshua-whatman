@@ -1441,14 +1441,38 @@ body {
     bottom: 2rem;
     z-index: 60;
 
-    color: #fff;
-    mix-blend-mode: difference;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+
     font-size: 0.72rem;
     line-height: 1;
     letter-spacing: 0.14em;
     font-variant-numeric: tabular-nums;
-    opacity: 0.55;
     pointer-events: none;
+}
+
+/* the digits difference-blend so they read on every scene; the REC tally sits
+   outside that blend so its red stays red over cream */
+.timecode-digits {
+    color: #fff;
+    mix-blend-mode: difference;
+    opacity: 0.55;
+}
+
+.timecode-rec {
+    color: #c25548;
+    animation: rec-blink 1.6s steps(1) infinite;
+}
+
+@keyframes rec-blink {
+    0% {
+        opacity: 1;
+    }
+
+    55% {
+        opacity: 0.2;
+    }
 }
 
 .sound-toggle {
@@ -1797,7 +1821,8 @@ html::-webkit-scrollbar {
     .hero-scroll-cue-slot,
     .hero-reel,
     .about-bg img,
-    .film-grain {
+    .film-grain,
+    .timecode-rec {
         animation: none;
     }
 
