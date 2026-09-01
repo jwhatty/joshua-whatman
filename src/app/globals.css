@@ -1369,17 +1369,29 @@ body {
 /* HERO CTAS                                         */
 /* ================================================== */
 
-/* the primary cue, promoted to a real button (also skins the mobile cue) */
+/* the primary cue, promoted to a real button (also skins the mobile cue).
+   Static by design — the only motion is the fill and a small arrow dip on
+   hover, no idle animation. */
 .hero-cta {
     border: 1px solid currentColor;
-    padding: 0.85em 1.4em;
-    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    padding: 1em 1.5em;
+    gap: 0.9rem;
+    letter-spacing: 0.18em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hero-cta .hero-scroll-arrow {
+    animation: none;
+    transition: transform 0.2s ease;
 }
 
 .hero-cta:hover {
     background-color: var(--cream);
     color: var(--ink);
-    transform: translateY(-2px);
+}
+
+.hero-cta:hover .hero-scroll-arrow {
+    transform: translateY(2px);
 }
 
 /* second CTA: fixed to the bottom of the opening scene, fades as you scroll */
@@ -1720,6 +1732,54 @@ body {
     }
 }
 
+/* mono ticker riding the hero's top edge — the session's track list. Fixed,
+   but the scene layer's contain:paint scopes and clips it to the hero, so it
+   wipes away with the scene and never fights the nav. Glacial on purpose. */
+.hero-ticker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(244, 239, 224, 0.12);
+    pointer-events: none;
+
+    animation: hero-fade 0.6s ease-out 0.6s both;
+}
+
+.hero-ticker-track {
+    display: inline-flex;
+    width: max-content;
+    animation: ticker-scroll 90s linear infinite;
+}
+
+.hero-ticker-half {
+    display: inline-block;
+    font-size: 0.62rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    opacity: 0.4;
+}
+
+@keyframes ticker-scroll {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 700px) {
+    .hero-ticker {
+        padding: 0.7rem 0;
+    }
+
+    .hero-ticker-half {
+        font-size: 0.55rem;
+    }
+}
+
 /* incoming scene's content settles into place over the last stretch of the wipe */
 .scene-layer[data-scene-state="incoming"] > * {
     transform: translateY(calc(var(--scene-inset) * 0.35));
@@ -1822,7 +1882,9 @@ html::-webkit-scrollbar {
     .hero-reel,
     .about-bg img,
     .film-grain,
-    .timecode-rec {
+    .timecode-rec,
+    .hero-ticker,
+    .hero-ticker-track {
         animation: none;
     }
 

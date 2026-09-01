@@ -1,3 +1,4 @@
+import { Ticker } from "@/components/Ticker";
 import { VideoFrame } from "@/components/VideoFrame";
 import { heroReel, visibleCategories } from "@/lib/data";
 import { displayFont, monoFont } from "@/lib/fonts";
@@ -15,6 +16,10 @@ export function Hero({ active }: { active: boolean }) {
 
     return (
         <div className="hero-inner">
+            {/* fixed, but the scene layer's paint containment scopes it to this
+                scene — it rides the top edge and wipes away with the hero */}
+            <Ticker />
+
             <div className="hero-copy">
                 <div className="hero-title-row">
                     <div className="hero-name-row">
