@@ -1,23 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties } from "react";
-import { displayFont, monoFont } from "@/lib/fonts";
+import { Waveform } from "@/components/Waveform";
+import { monoFont } from "@/lib/fonts";
 import { soundEngine } from "@/lib/sound";
 
 const YT_ALLOW =
     "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-
-const WAVE_BARS = 56;
-
-/**
- * Poster waveform for reels with no thumbnail yet. Deterministic (index-driven,
- * no Math.random) so server and client render identical bars — two sines give
- * the micro texture, the outer sine is the envelope that keeps the ends quiet.
- */
-const waveHeights = Array.from({ length: WAVE_BARS }, (_, i) => {
-    const texture = Math.sin(i * 0.82) * 0.35 + Math.sin(i * 2.19 + 1.3) * 0.2;
-    const envelope = Math.sin((i / (WAVE_BARS - 1)) * Math.PI) * 0.55 + 0.25;
-    return Math.min(1, Math.max(0.08, envelope * (1 + texture)));
-});
 
 type VideoFrameProps = {
     videoId: string;
@@ -27,12 +14,6 @@ type VideoFrameProps = {
     active?: boolean;
     /** Mount already playing — for cue-list loads, where the click was the intent. */
     autoPlay?: boolean;
-    /**
-     * Record-sleeve poster: the waveform stays the face of the frame, the
-     * thumbnail sits under it nearly blacked out, and the title sets large in
-     * the display face. The hero wears this; work monitors show their art.
-     */
-    wavePoster?: boolean;
 };
 
 /**
@@ -40,6 +21,9 @@ type VideoFrameProps = {
  * youtube-nocookie iframe — no YouTube IFrame API script, no Player objects.
  * "Stop playing" is simply unmounting the iframe, which happens when the scene
  * goes inactive or the frame scrolls out of view.
+ *
+ * This is the *inline* player, for the work deck's monitor. The hero's reel
+ * opens full-screen instead — see `ReelPlayer`.
  */
 export function VideoFrame({
     videoId,
@@ -48,7 +32,6 @@ export function VideoFrame({
     duration,
     active = true,
     autoPlay = false,
-    wavePoster = false,
 }: VideoFrameProps) {
     const frameRef = useRef<HTMLDivElement>(null);
     const [started, setStarted] = useState(autoPlay);
@@ -96,44 +79,18 @@ export function VideoFrame({
                     className="video-placeholder"
                     aria-label={`Play ${title}`}
                 >
-                    {thumbnail && (
-                        <img
-                            src={thumbnail}
-                            alt=""
-                            className={`video-thumbnail ${wavePoster ? "video-thumbnail-dim" : ""}`}
-                        />
-                    )}
-                    {(wavePoster || !thumbnail) && (
-                        // paused waveform; hovering the frame sets it dancing
-                        <span className="video-wave" aria-hidden="true">
-                            {waveHeights.map((height, i) => (
-                                <span
-                                    key={i}
-                                    className="video-wave-bar"
-                                    style={
-                                        {
-                                            "--bar-scale": height,
-                                            "--bar-delay": `${-((i * 137) % 1400)}ms`,
-                                        } as CSSProperties
-                                    }
-                                />
-                            ))}
-                        </span>
+                    {thumbnail ? (
+                        <img src={thumbnail} alt="" className="video-thumbnail" />
+                    ) : (
+                        // no art yet: the waveform is the poster, paused until hover
+                        <Waveform className="video-wave" />
                     )}
                     <span className="video-thumbnail-overlay" />
                     <span className="video-grain" />
                     <span className="video-play">
                         <span className="video-play-icon" />
                     </span>
-                    <span
-                        className={
-                            wavePoster
-                                ? `${displayFont.className} video-title video-title-large`
-                                : `${monoFont.className} video-title`
-                        }
-                    >
-                        {title}
-                    </span>
+                    <span className={`${monoFont.className} video-title`}>{title}</span>
                     {duration && (
                         <span className={`${monoFont.className} video-duration`}>{duration}</span>
                     )}

@@ -5,6 +5,7 @@ import { About } from "@/components/About";
 import { Contact } from "@/components/Contact";
 import { Hero } from "@/components/Hero";
 import { NavBar } from "@/components/NavBar";
+import { ReelPlayer } from "@/components/ReelPlayer";
 import { SceneStack } from "@/components/SceneStack";
 import { ScrollHint } from "@/components/ScrollHint";
 import { Slate } from "@/components/Slate";
@@ -18,7 +19,7 @@ import type { Section } from "@/lib/types";
 // Hero, one scene per enabled category, then about and contact. Built once at module
 // scope so SceneStack's scroll listener isn't torn down on every active-section change.
 const sections: Section[] = [
-    { id: "hero", bg: INK, fg: CREAM, render: (active) => <Hero active={active} /> },
+    { id: "hero", bg: INK, fg: CREAM, render: () => <Hero /> },
     ...visibleCategories.map((category) => ({
         id: category.id,
         bg: category.color,
@@ -41,6 +42,7 @@ export default function Home() {
             <Slate />
             <Timecode rec={soundOn} />
             <SoundToggle on={soundOn} onToggle={setSoundOn} />
+            <ReelPlayer />
             <div className="film-grain" aria-hidden="true" />
         </main>
     );

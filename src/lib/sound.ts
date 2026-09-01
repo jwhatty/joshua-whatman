@@ -30,6 +30,9 @@ const BED_RECIPES: BedRecipe[] = [
 
 const TICK_THROTTLE_MS = 70;
 
+/** Master level with nothing ducking it. */
+const MASTER_GAIN = 0.9;
+
 type Bed = { gain: GainNode; level: number };
 
 class SoundEngine {
@@ -72,6 +75,20 @@ class SoundEngine {
         osc.stop(t + 0.06);
     }
 
+    /**
+     * Duck the site's own bed to silence while a reel plays — the video is the
+     * only source that should be audible. No-op while sound is off.
+     */
+    duck(on: boolean) {
+        const ctx = this.ctx;
+        if (!ctx || !this.master) return;
+
+        const t = ctx.currentTime;
+        this.master.gain.cancelScheduledValues(t);
+        this.master.gain.setValueAtTime(this.master.gain.value, t);
+        this.master.gain.setTargetAtTime(on ? 0.0001 : MASTER_GAIN, t, on ? 0.09 : 0.4);
+    }
+
     private enable() {
         if (!this.ctx) this.buildGraph();
         this.ctx?.resume();
@@ -91,7 +108,7 @@ class SoundEngine {
         this.ctx = ctx;
 
         this.master = ctx.createGain();
-        this.master.gain.value = 0.9;
+        this.master.gain.value = MASTER_GAIN;
         this.master.connect(ctx.destination);
 
         // 2s of white noise, looped by every consumer
