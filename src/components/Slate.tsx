@@ -39,9 +39,11 @@ export function Slate() {
                     memo.current.shown = state.incoming;
                     const id = sectionOrder[state.incoming];
                     const label = labels[id] ?? id;
+                    // scene numbers are scroll indices: hero is 00, matching the
+                    // nav indices and the timecode's minute
                     if (sceneRef.current) {
                         sceneRef.current.textContent =
-                            `SCENE ${pad(state.incoming + 1)} · ${label.toUpperCase()}`;
+                            `SCENE ${pad(state.incoming)} · ${label.toUpperCase()}`;
                     }
                 }
 

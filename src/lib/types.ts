@@ -32,20 +32,3 @@ export type Section = {
     render: (active: boolean) => ReactNode;
 };
 
-export type YouTubePlayer = {
-    pauseVideo: () => void;
-    seekTo: (seconds: number, allowSeekAhead: boolean) => void;
-    destroy: () => void;
-};
-
-declare global {
-    interface Window {
-        YT?: {
-            Player: new (
-                element: Element,
-                options: { events?: { onReady?: () => void } },
-            ) => YouTubePlayer;
-        };
-        onYouTubeIframeAPIReady?: () => void;
-    }
-}

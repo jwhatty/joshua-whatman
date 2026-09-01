@@ -9,7 +9,9 @@ const METER_SEGMENTS = Array.from({ length: 12 }, (_, i) => i);
 export function Contact() {
     return (
         <div className="contact-inner">
-            <h2 className={`${displayFont.className} contact-line`}>LET’S WORK.</h2>
+            <h2 className={`${displayFont.className} contact-line`}>
+                LET’S WORK<span className="contact-period">.</span>
+            </h2>
 
             <div className="contact-cta">
                 <a

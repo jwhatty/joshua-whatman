@@ -40,6 +40,7 @@ export default function Home() {
             <Slate />
             <Timecode />
             <SoundToggle />
+            <div className="film-grain" aria-hidden="true" />
         </main>
     );
 }

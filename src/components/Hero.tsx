@@ -23,9 +23,12 @@ export function Hero({ active }: { active: boolean }) {
                         </div>
 
                         <h1 className={`${displayFont.className} hero-title`}>
-                            JOSHUA
-                            <br />
-                            WHATMAN
+                            <span className="hero-line">
+                                <span className="hero-line-inner">JOSHUA</span>
+                            </span>
+                            <span className="hero-line">
+                                <span className="hero-line-inner hero-line-second">WHATMAN</span>
+                            </span>
                         </h1>
                     </div>
 

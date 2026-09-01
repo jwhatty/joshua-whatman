@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { WorkCard } from "@/components/WorkCard";
+import { sectionOrder } from "@/lib/data";
 import { displayFont, monoFont } from "@/lib/fonts";
 import type { Category } from "@/lib/types";
 
@@ -43,8 +44,15 @@ export function WorkSection({ category, active }: WorkSectionProps) {
         setSlideIndex(index);
     }
 
+    // this section's scroll index — hero is 00, matching nav, slate and timecode
+    const sceneNumber = String(Math.max(0, sectionOrder.indexOf(category.id))).padStart(2, "0");
+
     return (
         <div className="work-inner">
+            <span className={`${displayFont.className} work-ghost-index`} aria-hidden="true">
+                {sceneNumber}
+            </span>
+
             <div className="work-heading">
                 <h2 className={`${displayFont.className} work-title`}>{category.label}</h2>
             </div>

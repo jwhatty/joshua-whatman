@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { monoFont } from "@/lib/fonts";
 import { soundEngine } from "@/lib/sound";
-import type { YouTubePlayer } from "@/lib/types";
 
 const YT_ALLOW =
     "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-const YT_SCRIPT_ID = "youtube-iframe-api";
 
 const WAVE_BARS = 56;
 
@@ -29,10 +27,14 @@ type VideoFrameProps = {
     active?: boolean;
 };
 
-/** Click-to-play YouTube embed: poster until started, iframe after. */
+/**
+ * Lite click-to-play embed: nothing but the poster until clicked, then a bare
+ * youtube-nocookie iframe — no YouTube IFrame API script, no Player objects.
+ * "Stop playing" is simply unmounting the iframe, which happens when the scene
+ * goes inactive or the frame scrolls out of view.
+ */
 export function VideoFrame({ videoId, title, thumbnail, duration, active = true }: VideoFrameProps) {
     const frameRef = useRef<HTMLDivElement>(null);
-    const playerRef = useRef<YouTubePlayer | null>(null);
     const [started, setStarted] = useState(false);
 
     // Scenes don't unmount when scrolled off, they get hidden — so a scene going
@@ -44,59 +46,20 @@ export function VideoFrame({ videoId, title, thumbnail, duration, active = true 
         if (!active) setStarted(false);
     }
 
-    // The YouTube iframe API is an external system, so it does belong in an effect.
+    // Within a live scene (the mobile carousel), a playing frame that scrolls
+    // out of view also unmounts rather than droning on off-screen.
     useEffect(() => {
         const frame = frameRef.current;
         if (!started || !frame) return;
 
-        let observer: IntersectionObserver | undefined;
-
-        // Once the player is live, stop and rewind it as soon as it leaves the viewport.
-        const watchVisibility = () => {
-            observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) return;
-                    playerRef.current?.pauseVideo();
-                    playerRef.current?.seekTo(0, false);
-                    setStarted(false);
-                },
-                { threshold: 0.1 },
-            );
-            observer.observe(frame);
-        };
-
-        const attachPlayer = () => {
-            // frameRef wraps the iframe, so grab the actual node
-            const iframe = frame.querySelector("iframe");
-            if (!iframe || !window.YT) return;
-            playerRef.current = new window.YT.Player(iframe, {
-                events: { onReady: watchVisibility },
-            });
-        };
-
-        if (window.YT?.Player) {
-            attachPlayer();
-        } else {
-            // the script only needs adding once, other VideoFrames reuse it
-            if (!document.getElementById(YT_SCRIPT_ID)) {
-                const script = document.createElement("script");
-                script.id = YT_SCRIPT_ID;
-                script.src = "https://www.youtube.com/iframe_api";
-                document.body.appendChild(script);
-            }
-
-            const previousReady = window.onYouTubeIframeAPIReady;
-            window.onYouTubeIframeAPIReady = () => {
-                previousReady?.();
-                if (frameRef.current) attachPlayer();
-            };
-        }
-
-        return () => {
-            observer?.disconnect();
-            playerRef.current?.destroy();
-            playerRef.current = null;
-        };
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry.isIntersecting) setStarted(false);
+            },
+            { threshold: 0.1 },
+        );
+        observer.observe(frame);
+        return () => observer.disconnect();
     }, [started]);
 
     return (
@@ -104,7 +67,7 @@ export function VideoFrame({ videoId, title, thumbnail, duration, active = true 
             {started ? (
                 <iframe
                     className="video-iframe"
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`}
+                    src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0`}
                     title={title}
                     allow={YT_ALLOW}
                     allowFullScreen
