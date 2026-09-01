@@ -20,7 +20,7 @@ export function Hero({ active }: { active: boolean }) {
         <button
             type="button"
             className={`${monoFont.className} hero-contact-link ${extraClass}`}
-            onClick={() => scrollToId("contact")}
+            onClick={() => scrollToId("contact", "instant")}
             onMouseEnter={() => soundEngine.tick()}
             aria-label="Skip to contact"
         >
