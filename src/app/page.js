@@ -522,7 +522,7 @@ function Hero({ active }) {
                                 type="button"
                                 className={`${mono.className} hero-scroll-cue-static`}
                                 onClick={scrollToWork}
-                                aria-label="Scroll to selected work"
+                                aria-label="Scroll to learn more"
                             >
                                 <span>Learn More</span>
                                 <span className="hero-scroll-arrow">↓</span>
@@ -540,9 +540,9 @@ function Hero({ active }) {
                     type="button"
                     className={`${mono.className} hero-scroll-cue-mobile`}
                     onClick={scrollToWork}
-                    aria-label="Scroll to selected work"
+                    aria-label="Scroll to learn more"
                 >
-                    <span>SELECTED WORKS</span>
+                    <span>LEARN MORE</span>
                     <span className="hero-scroll-arrow">↓</span>
                 </button>
             </div>
