@@ -101,6 +101,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
     <body className="min-h-full flex flex-col">
+    {/* YouTube is the one third party on the site, and the reel's embed starts
+        loading before anyone presses anything (see `lib/reel`). Open the
+        sockets in the document head so that load — and any click that beats it
+        — starts on a connection that already exists. React hoists these. */}
+    <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+    <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://i.ytimg.com" />
+
     {children}
 
     <script

@@ -1516,16 +1516,24 @@ body {
     color: var(--cream);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.28s ease;
-
-    /* the page underneath is frozen; don't let a touch drag reach it anyway */
-    overscroll-behavior: contain;
-    touch-action: none;
+    transition: opacity 0.22s ease;
 }
 
 .reel-overlay.is-open {
     opacity: 1;
     pointer-events: auto;
+
+    /* the page underneath is frozen; don't let a touch drag reach it anyway.
+       Only while it's up: on standby this same layer is invisible, inert and
+       covering the viewport, and it must not eat the page's own scrolling. */
+    overscroll-behavior: contain;
+    touch-action: none;
+}
+
+/* Standby: the overlay is mounted with a live embed inside it, loading ahead of
+   the press. Nothing of it may run — the cueing wave least of all. */
+.reel-overlay:not(.is-open) .wave-bar {
+    animation-play-state: paused;
 }
 
 /* everything outside the frame is one big close button */
@@ -1551,7 +1559,7 @@ body {
     background: #000;
 
     transform: scale(0.965) translateY(10px);
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* mobile browser chrome comes and goes; follow the visible viewport where we can */
@@ -1576,9 +1584,10 @@ body {
 }
 
 /* Our own black over the embed until it is genuinely playing — that's what
-   keeps YouTube's unstarted title bar and "Watch on YouTube" strip off the
-   screen. It blocks clicks while cueing, and turns click-through while
-   prompting so the press lands on the embed underneath. */
+   keeps YouTube's unstarted title bar off the screen. It blocks clicks while
+   cueing, and turns click-through while prompting so the press lands on the
+   embed underneath. Once there's a picture it is gone for good: the control
+   bar under it is the visitor's. */
 .reel-cover {
     position: absolute;
     inset: 0;
@@ -1587,7 +1596,7 @@ body {
     display: grid;
     place-items: center;
     background: #000;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.22s ease;
 }
 
 .reel-overlay[data-phase="prompt"] .reel-cover {
@@ -1599,52 +1608,6 @@ body {
 .reel-overlay[data-phase="paused"] .reel-cover {
     opacity: 0;
     pointer-events: none;
-}
-
-/* Once we can drive the player ourselves this takes the picture's clicks —
-   which is also what keeps a stray mouse move from summoning YouTube's title
-   bar and "Watch on YouTube" strip back over the reel. */
-.reel-guard {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-
-    appearance: none;
-    border: 0;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-}
-
-/* paused is ours too: the picture holds under a veil, behind the same mark */
-.reel-veil {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-
-    display: grid;
-    place-items: center;
-    background: rgba(4, 4, 4, 0.9);
-
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-/* Blur rather than just dim where we can: it keeps the held frame legible as a
-   picture while smearing the title bar YouTube insists on showing when paused
-   into nothing. Without support, the flat veil above is dark enough to bury it. */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .reel-veil {
-        background: rgba(4, 4, 4, 0.58);
-        -webkit-backdrop-filter: blur(22px) saturate(0.8);
-        backdrop-filter: blur(22px) saturate(0.8);
-    }
-}
-
-.reel-overlay[data-phase="paused"] .reel-veil {
-    opacity: 1;
 }
 
 /* one cell, two states, crossfading in place */
@@ -1671,30 +1634,7 @@ body {
     opacity: 1;
 }
 
-/* the embed's own top and bottom bars are links; while the cover is
-   click-through, keep a stray press off them */
-.reel-shield {
-    position: absolute;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-}
-
-.reel-overlay[data-phase="prompt"] .reel-shield {
-    pointer-events: auto;
-}
-
-.reel-shield-top {
-    top: 0;
-    height: 24%;
-}
-
-.reel-shield-bottom {
-    bottom: 0;
-    height: 20%;
-}
-
-/* one play mark, used by the prompt and by paused */
+/* the play mark the prompt asks with */
 .reel-mark {
     display: flex;
     align-items: center;
@@ -1858,43 +1798,13 @@ body {
     transform: rotate(45deg);
 }
 
-.reel-meta,
-.reel-hint {
-    position: absolute;
-    bottom: clamp(1rem, 3vh, 2rem);
-    z-index: 2;
-    margin: 0;
-
-    font-size: 0.6rem;
-    line-height: 1.5;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    pointer-events: none;
-}
-
-.reel-meta {
-    left: clamp(1rem, 3vw, 2.4rem);
-}
-
-/* we took the control bar away, so say what replaced it — but only once
-   there's a picture to say it about */
-.reel-hint {
-    right: clamp(1rem, 3vw, 2.4rem);
-    color: rgba(244, 239, 224, 0.5);
-}
-
-.reel-overlay:not([data-phase="playing"]) .reel-hint {
-    display: none;
-}
-
 /* copy that differs between a pointer and a finger */
 .on-coarse {
     display: none;
 }
 
 @media (pointer: coarse) {
-    .on-fine,
-    .reel-hint-esc {
+    .on-fine {
         display: none;
     }
 
@@ -1906,15 +1816,11 @@ body {
 /* the chrome sits up for a beat, then settles into the film. It never leaves —
    reaching for the close brings the whole set back. */
 .reel-close,
-.reel-meta,
-.reel-hint,
 .reel-ticks {
     transition: opacity 0.7s ease;
 }
 
 .reel-overlay.is-settled .reel-close,
-.reel-overlay.is-settled .reel-meta,
-.reel-overlay.is-settled .reel-hint,
 .reel-overlay.is-settled .reel-ticks {
     opacity: 0.4;
 }
@@ -1929,14 +1835,8 @@ body {
         --reel-gutter: clamp(5rem, 13vh, 6.5rem);
     }
 
-    .reel-close-label,
-    .reel-hint {
+    .reel-close-label {
         display: none;
-    }
-
-    .reel-meta {
-        font-size: 0.54rem;
-        letter-spacing: 0.16em;
     }
 
     .reel-ticks i {

@@ -1,6 +1,6 @@
 import { Waveform } from "@/components/Waveform";
 import { monoFont } from "@/lib/fonts";
-import { openReel } from "@/lib/reel";
+import { openReel, useWarmOnIdle, warmReel } from "@/lib/reel";
 import { soundEngine } from "@/lib/sound";
 import type { Video } from "@/lib/types";
 
@@ -22,14 +22,24 @@ type ReelBarProps = {
  *
  * Idle it's a frozen waveform behind a hairline; hovered, the signal starts
  * moving and the play ring fills. The reward for reaching for it is the wave.
+ *
+ * It also puts its reel on standby — once the page has gone quiet, and again
+ * the moment anyone reaches for the bar — so pressing it is a play command
+ * rather than a cold YouTube load. See `lib/reel`.
  */
 export function ReelBar({ reel, label = "PLAY THE REEL" }: ReelBarProps) {
+    useWarmOnIdle(reel);
+
     return (
         <button
             type="button"
             className={`${monoFont.className} reel-bar`}
             onClick={() => openReel(reel)}
-            onMouseEnter={() => soundEngine.tick()}
+            onMouseEnter={() => {
+                soundEngine.tick();
+                warmReel(reel);
+            }}
+            onFocus={() => warmReel(reel)}
             aria-label={`Play ${reel.title} full screen`}
         >
             <span className="reel-bar-play" aria-hidden="true">

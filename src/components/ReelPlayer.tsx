@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Waveform } from "@/components/Waveform";
 import { monoFont } from "@/lib/fonts";
-import { closeReel, useReel } from "@/lib/reel";
+import { closeReel, useReel, useWarmReel, warmReel } from "@/lib/reel";
 import { soundEngine } from "@/lib/sound";
+import type { Video } from "@/lib/types";
 
 const YT_ALLOW =
-    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    "accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share";
 /** Where the embed's status messages legitimately come from. */
 const YT_ORIGINS = ["https://www.youtube-nocookie.com", "https://www.youtube.com"];
 
@@ -16,48 +17,70 @@ const PLAYING = 1;
 const PAUSED = 2;
 
 /** How long the overlay takes to fade out — the reel is held that long past close. */
-const EXIT_MS = 280;
+const EXIT_MS = 220;
 /** Beat before the chrome settles back into the film. */
 const SETTLE_MS = 2600;
+/** After that, put the embed back on standby: it's in the cache, so it's cheap. */
+const REWARM_MS = 800;
 /**
  * How long the cover waits on a loaded-but-not-yet-playing embed. Where
  * autoplay is allowed the player reports PLAYING well inside this; where it is
  * blocked (Safari, iOS) we switch the cover to a play prompt instead.
  */
 const REVEAL_MS = 1600;
+/** A standby frame is up and asked to play: it either takes at once or it was refused. */
+const WARM_REVEAL_MS = 700;
 /** Uncover anyway if the embed never fires `load` — better a frame than a forever wave. */
 const REVEAL_CEILING_MS = 5000;
 /** Fade to black on the last frame, then put the frame away. */
 const ENDED_MS = 600;
+
+/** How often we talk to the embed while we're waiting for a picture, and for how long. */
+const PING_MS = 250;
+const PING_LIMIT = 24;
 
 /**
  * cueing  — black, waveform, embed still coming up
  * prompt  — black, our play mark; autoplay was refused, and the cover is
  *           click-through so pressing it lands on the embed underneath, which
  *           is the in-frame gesture Safari insists on
- * playing — cover gone, picture owns the screen
- * paused  — picture held under a veil and our play mark
+ * playing — cover gone, the player owns the screen
+ * paused  — the visitor paused it in YouTube's own controls; nothing of ours
+ *           comes over the top
  * ended   — black again, on the way out
  */
 type Phase = "cueing" | "prompt" | "playing" | "paused" | "ended";
 
+/** The embed we currently have mounted. */
+type Frame = {
+    id: string;
+    /**
+     * Fixed for the life of the frame. Changing an iframe's `src` renavigates
+     * it, which would throw away exactly the work standby did.
+     */
+    src: string;
+    /** Built on standby: autoplay off, so opening it is a command, not a load. */
+    armed: boolean;
+};
+
 /**
- * Nothing but the picture: no control bar, no related grid, no fullscreen
- * button — the overlay *is* the fullscreen.
+ * The picture *and* YouTube's own controls. We used to hide them and put our
+ * own pause on top, which cost the visitor everything the real control bar does
+ * — scrubbing most of all, and the logo that opens the video on YouTube. The
+ * overlay's job is to give the reel the whole screen and get out of the way.
  *
- * `enablejsapi` buys us the embed's status channel (see below) and nothing
- * else; there is still no IFrame API script on the page. `modestbranding` is
- * absent because YouTube stopped honouring it.
+ * `enablejsapi` buys us the embed's status channel and the two commands we send
+ * back over it. `modestbranding` and `color` are absent because YouTube stopped
+ * honouring both — the progress bar is red whatever we ask for. On standby,
+ * `autoplay` is off: the frame loads, and stays dark and silent until someone
+ * actually asks for the reel.
  */
-function embedSrc(videoId: string): string {
+function embedSrc(videoId: string, standby: boolean): string {
     const params = new URLSearchParams({
-        autoplay: "1",
+        autoplay: standby ? "0" : "1",
         playsinline: "1",
         rel: "0",
-        controls: "0",
         iv_load_policy: "3",
-        fs: "0",
-        color: "white",
         enablejsapi: "1",
         origin: window.location.origin,
     });
@@ -67,8 +90,10 @@ function embedSrc(videoId: string): string {
 /**
  * The one player on the site, mounted once at the root and driven by
  * `lib/reel`. Any button anywhere calls `openReel(video)`; this fades a
- * full-screen frame over everything, holds a waveform while the embed cues,
- * then hands the screen to the picture.
+ * full-screen frame over everything and hands the screen to the picture.
+ *
+ * It is also mounted, invisible and inert, whenever `lib/reel` has a reel on
+ * standby — which is how the click that opens a reel has nothing left to load.
  *
  * It portals to `document.body` on purpose: the scene layers are clipped
  * (`clip-path`) and contained (`contain: strict`), either of which would trap
@@ -76,6 +101,7 @@ function embedSrc(videoId: string): string {
  */
 export function ReelPlayer() {
     const requested = useReel();
+    const warm = useWarmReel();
     const [mounted, setMounted] = useState(false);
     // held one beat past close so the overlay can fade out instead of vanishing
     const [showing, setShowing] = useState(requested);
@@ -90,6 +116,9 @@ export function ReelPlayer() {
     const returnFocus = useRef<HTMLElement | null>(null);
     // whether the embed's status channel ever answered us
     const heard = useRef(false);
+    const frame = useRef<Frame | null>(null);
+    // what to put back on standby once the overlay is gone
+    const lastOpened = useRef<Video | null>(null);
 
     useEffect(() => setMounted(true), []);
 
@@ -104,9 +133,13 @@ export function ReelPlayer() {
     // mirror the store
     useEffect(() => {
         if (requested) {
+            // a standby frame is already loaded; only a brand new one starts over
+            const fresh = frame.current?.id !== requested.videoId;
+
             returnFocus.current = document.activeElement as HTMLElement | null;
+            lastOpened.current = requested;
             setShowing(requested);
-            setLoaded(false);
+            if (fresh) setLoaded(false);
             setPhase("cueing");
             setSettled(false);
             heard.current = false;
@@ -116,8 +149,26 @@ export function ReelPlayer() {
         }
 
         setOpen(false);
-        const timer = window.setTimeout(() => setShowing(null), EXIT_MS);
-        return () => window.clearTimeout(timer);
+        // cut the sound with the picture instead of letting it play out the fade.
+        // Unmounting the frame below is what actually stops it.
+        command("pauseVideo");
+
+        const closed = lastOpened.current;
+        const exit = window.setTimeout(() => {
+            setShowing(null);
+            // back to standby: the frame that reports its last state is gone
+            setPhase("cueing");
+        }, EXIT_MS);
+        // the embed is in the browser cache now, so getting back to standby is
+        // nearly free — and it makes a second look as instant as the first
+        const rewarm = window.setTimeout(() => {
+            if (closed) warmReel(closed);
+        }, EXIT_MS + REWARM_MS);
+
+        return () => {
+            window.clearTimeout(exit);
+            window.clearTimeout(rewarm);
+        };
     }, [requested]);
 
     // while a reel is up the overlay is the whole world: page frozen and inert,
@@ -170,8 +221,8 @@ export function ReelPlayer() {
         };
     }, [showing]);
 
-    // the chrome sits up for a beat, then settles into the film. It never leaves —
-    // reaching for the close brings the whole set back.
+    // our chrome sits up for a beat, then settles into the film. It never leaves —
+    // reaching for the close brings it back.
     useEffect(() => {
         if (!showing) return;
         const timer = window.setTimeout(() => setSettled(true), SETTLE_MS);
@@ -181,26 +232,34 @@ export function ReelPlayer() {
     // The picture normally arrives on the embed's own PLAYING message. If that
     // hasn't come a beat after load, autoplay was refused — ask for the press
     // if the channel is talking to us, and if it never was, just uncover and
-    // let the embed speak for itself.
+    // let the embed speak for itself. A standby frame gets a much shorter rope:
+    // it is already up, so the play command either takes at once or not at all.
     useEffect(() => {
         if (!showing || phase !== "cueing") return;
+
+        const wait = !loaded
+            ? REVEAL_CEILING_MS
+            : frame.current?.armed
+              ? WARM_REVEAL_MS
+              : REVEAL_MS;
+
         const timer = window.setTimeout(
             () => setPhase(heard.current ? "prompt" : "playing"),
-            loaded ? REVEAL_MS : REVEAL_CEILING_MS,
+            wait,
         );
         return () => window.clearTimeout(timer);
     }, [showing, loaded, phase]);
 
     // Talk the embed's own message channel instead of pulling in the IFrame API
     // script: post "listening" until the player answers, then read its state off
-    // the replies. That state is what lets us keep YouTube's own chrome off the
-    // screen — see `.reel-guard` below. If it never answers, the timers above
-    // still uncover the picture and the embed handles its own clicks.
+    // the replies. That state is what tells us when there is a real picture to
+    // uncover. If it never answers, the timers above uncover it anyway.
     useEffect(() => {
         if (!showing || !open) return;
 
         let endTimer = 0;
         let ping = 0;
+        let tries = 0;
 
         function onMessage(event: MessageEvent) {
             if (!YT_ORIGINS.includes(event.origin)) return;
@@ -213,7 +272,6 @@ export function ReelPlayer() {
             }
 
             heard.current = true;
-            window.clearInterval(ping);
 
             const info = (data as { info?: unknown }).info;
             const state =
@@ -221,25 +279,42 @@ export function ReelPlayer() {
                     ? info
                     : (info as { playerState?: number } | undefined)?.playerState;
 
-            if (state === PLAYING) setPhase("playing");
+            if (state === PLAYING) {
+                setPhase("playing");
+                window.clearInterval(ping);
+            }
             if (state === PAUSED) setPhase("paused");
             if (state === ENDED) {
                 // cut to black on the last frame rather than letting YouTube's
                 // end screen show, then take the frame away
                 setPhase("ended");
+                window.clearInterval(ping);
                 endTimer = window.setTimeout(closeReel, ENDED_MS);
             }
         }
 
         window.addEventListener("message", onMessage);
 
-        // the embed ignores us until its player is up, so keep asking
-        ping = window.setInterval(() => {
+        // The embed ignores us until its player is up, so keep asking — and keep
+        // asking it to play: a standby frame was loaded with autoplay off, so the
+        // command *is* the press. It's a no-op on a frame already running.
+        function poke() {
             frameRef.current?.contentWindow?.postMessage(
                 JSON.stringify({ event: "listening", id: 1, channel: "widget" }),
                 "*",
             );
-        }, 250);
+            command("playVideo");
+        }
+
+        poke();
+        ping = window.setInterval(() => {
+            tries += 1;
+            if (tries > PING_LIMIT) {
+                window.clearInterval(ping);
+                return;
+            }
+            poke();
+        }, PING_MS);
 
         return () => {
             window.removeEventListener("message", onMessage);
@@ -248,13 +323,26 @@ export function ReelPlayer() {
         };
     }, [showing, open]);
 
-    if (!mounted || !showing) return null;
+    if (!mounted) return null;
 
-    const meta = [showing.title, showing.duration].filter(Boolean).join("  ·  ");
-    // Only take the picture's clicks once we know we can drive it. The guard is
-    // what stops a stray mouse move summoning YouTube's title bar and "Watch on
-    // YouTube" strip, so it earns its keep even while playing.
-    const guarded = heard.current && (phase === "playing" || phase === "paused");
+    // Showing wins; otherwise this is the standby frame, loading behind an
+    // invisible overlay.
+    const target = showing ?? warm;
+    if (!target) {
+        // the embed is gone, so the next one starts from scratch
+        frame.current = null;
+        return null;
+    }
+
+    // memo-by-key, in render on purpose: the src has to exist before the iframe
+    // does, and it has to survive the standby → open transition untouched
+    if (frame.current?.id !== target.videoId) {
+        frame.current = {
+            id: target.videoId,
+            src: embedSrc(target.videoId, !showing),
+            armed: !showing,
+        };
+    }
 
     return createPortal(
         <div
@@ -263,9 +351,14 @@ export function ReelPlayer() {
                 settled ? "is-settled" : ""
             }`}
             data-phase={phase}
-            role="dialog"
-            aria-modal="true"
-            aria-label={showing.title}
+            // On standby this is a full-viewport, invisible overlay holding a
+            // live iframe. `inert` is what keeps it out of the tab order and out
+            // of hit-testing; opacity alone would leave the embed focusable.
+            inert={!showing}
+            aria-hidden={showing ? undefined : true}
+            role={showing ? "dialog" : undefined}
+            aria-modal={showing ? true : undefined}
+            aria-label={showing ? showing.title : undefined}
         >
             {/* everything outside the frame closes it */}
             <button
@@ -284,40 +377,22 @@ export function ReelPlayer() {
                     <i />
                 </span>
 
-                {open && (
-                    <iframe
-                        key={showing.videoId}
-                        ref={frameRef}
-                        className="reel-player"
-                        src={embedSrc(showing.videoId)}
-                        title={showing.title}
-                        allow={YT_ALLOW}
-                        allowFullScreen
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        onLoad={() => setLoaded(true)}
-                    />
-                )}
-
-                {guarded && (
-                    <button
-                        type="button"
-                        className="reel-guard"
-                        onClick={() => command(phase === "paused" ? "playVideo" : "pauseVideo")}
-                        aria-label={phase === "paused" ? "Resume" : "Pause"}
-                    />
-                )}
-
-                {/* paused is ours too: the picture holds under a veil and a play mark */}
-                <span className="reel-veil" aria-hidden="true">
-                    <span className="reel-mark">
-                        <span className="reel-mark-icon" />
-                    </span>
-                </span>
+                <iframe
+                    key={frame.current.id}
+                    ref={frameRef}
+                    className="reel-player"
+                    src={frame.current.src}
+                    title={target.title}
+                    allow={YT_ALLOW}
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    onLoad={() => setLoaded(true)}
+                />
 
                 {/* Our own black over the embed until it is genuinely playing, so
-                    YouTube's unstarted title bar and "Watch on YouTube" strip never
-                    show. Click-through while prompting; the shields keep a stray
-                    press off those same (invisible) links. */}
+                    YouTube's unstarted title bar never shows. It blocks clicks
+                    while cueing and turns click-through while prompting, so the
+                    press lands on the embed underneath. */}
                 <span className="reel-cover">
                     <span className="reel-cueing">
                         <Waveform className="reel-cueing-wave" bars={48} shape={0.75} />
@@ -333,9 +408,6 @@ export function ReelPlayer() {
                             <span className="on-coarse">TAP TO PLAY</span>
                         </span>
                     </span>
-
-                    <span className="reel-shield reel-shield-top" />
-                    <span className="reel-shield reel-shield-bottom" />
                 </span>
             </div>
 
@@ -343,14 +415,6 @@ export function ReelPlayer() {
                 <span className="reel-close-label">CLOSE</span>
                 <span className="reel-close-mark" aria-hidden="true" />
             </button>
-
-            <p className="reel-meta">{meta}</p>
-
-            <p className="reel-hint" aria-hidden="true">
-                <span className="on-fine">CLICK TO PAUSE</span>
-                <span className="on-coarse">TAP TO PAUSE</span>
-                <span className="reel-hint-esc">  ·  ESC TO CLOSE</span>
-            </p>
         </div>,
         document.body,
     );
