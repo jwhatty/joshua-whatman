@@ -4,8 +4,10 @@ export type Video = {
     videoId: string;
     title: string;
     thumbnail?: string;
-    /** Runtime shown on the poster, e.g. "01:24" — clicking feels bounded. */
+    /** Runtime shown on the poster and in the cue list, e.g. "01:24". */
     duration?: string;
+    /** Optional year tag shown in the cue list. */
+    year?: string;
 };
 
 export type Category = {
@@ -16,12 +18,8 @@ export type Category = {
     color: string;
     /** Layer foreground, and the nav/logo colour while this scene is on top. */
     fg: string;
-    /** YouTube id of the headline reel. */
-    main: string;
-    mainTitle: string;
-    mainThumbnail?: string;
-    mainDuration?: string;
-    extras: Video[];
+    /** Newest first. The first cue loads into the monitor by default. */
+    videos: Video[];
 };
 
 /** One full-screen scene in the stack. `render` gets whether it is the active scene. */

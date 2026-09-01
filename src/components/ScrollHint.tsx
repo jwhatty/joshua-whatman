@@ -1,7 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { sectionOrder } from "@/lib/data";
 import { monoFont } from "@/lib/fonts";
-import { soundEngine } from "@/lib/sound";
 import { scrollToId } from "@/lib/utils";
 
 /** Scroll-down cues: the hero label fades out, a bare arrow fades in below it. */
@@ -9,8 +8,6 @@ export function ScrollHint({ activeId }: { activeId: string }) {
     const { scrollY } = useScroll();
     const topOpacity = useTransform(scrollY, [0, 80], [1, 0]);
     const bottomOpacity = useTransform(scrollY, [40, 140], [0, 1]);
-    // once faded, the contact cue must stop eating clicks meant for the arrow
-    const contactPointer = useTransform(scrollY, (y) => (y > 80 ? "none" : "auto"));
 
     // whatever comes right after the current section, or null at the end
     const currentIndex = sectionOrder.indexOf(activeId);
@@ -48,18 +45,6 @@ export function ScrollHint({ activeId }: { activeId: string }) {
                     <span className="hero-scroll-arrow">↓</span>
                 </motion.button>
             )}
-
-            {/* second CTA: skip the tour, go straight to contact */}
-            <motion.button
-                type="button"
-                className={`${monoFont.className} hero-contact-cue`}
-                style={{ opacity: topOpacity, pointerEvents: contactPointer }}
-                onClick={() => scrollToId("contact")}
-                onMouseEnter={() => soundEngine.tick()}
-                aria-label="Skip to contact"
-            >
-                or get in touch →
-            </motion.button>
         </>
     );
 }

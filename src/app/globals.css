@@ -11,7 +11,6 @@
 
     /* height cap in vh, width derives from it (height * 16/9)  */
     --video-cap: clamp(7rem, 52vh, 23rem);
-    --video-cap-sm: clamp(5rem, 30vh, 13rem);
 }
 
 html, body {
@@ -720,24 +719,16 @@ body {
     line-height: 0.9;
 }
 
-.work-grid {
+/* the deck: one monitor, one cue list. However many videos a category grows
+   to, there is exactly one player; the list scrolls inside its cap. */
+.work-deck {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(220px, 0.85fr);
-    gap: var(--space-md);
+    grid-template-columns: minmax(0, 1.7fr) minmax(250px, 1fr);
+    gap: clamp(1.2rem, 3vw, 3rem);
+    align-items: start;
 }
 
-.work-main,
-.work-extra {
-    min-width: 0;
-}
-
-.work-extras {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-}
-
-.work-card {
+.work-monitor {
     min-width: 0;
 }
 
@@ -749,15 +740,96 @@ body {
     opacity: 0.75;
 }
 
-.work-carousel-controls {
-    display: none;
+.cue-list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    /* never taller than the monitor's ballpark — beyond that it scrolls */
+    max-height: calc(var(--video-cap) + 4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, currentColor 25%, transparent) transparent;
+}
+
+.cue-list-head {
+    margin: 0 0 0.7rem;
+    font-size: 0.62rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+.cue-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.85rem 0.4rem;
+
+    appearance: none;
+    border: 0;
+    margin: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    opacity: 0.6;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.cue-row:last-child {
+    border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.cue-row:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.cue-row-active {
+    opacity: 1;
+}
+
+/* the loaded cue's index goes tally-red */
+.cue-row-active .cue-index {
+    color: #c25548;
+    opacity: 1;
+}
+
+.cue-index {
+    font-size: 0.66rem;
+    line-height: 1.4;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+
+.cue-title {
+    font-size: 0.74rem;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.cue-meta {
+    font-size: 0.64rem;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 /* ================================================== */
-/* WORK CAROUSEL                                    */
+/* WORK — SMALL SCREENS                              */
 /* ================================================== */
 
-/* desktop: main/extras layout, mobile/narrow: carousel */
+/* the deck stacks: monitor on top, cue list under it */
 @media (max-width: 900px) {
     .work-heading {
         margin-bottom: var(--space-sm);
@@ -768,109 +840,28 @@ body {
         font-size: clamp(1.7rem, min(9vw, 9vh), 2.6rem);
     }
 
-    .work-grid {
+    .work-deck {
         display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 0;
-        width: 100%;
-
-        overflow-x: auto;
-        overflow-y: hidden;
-        overscroll-behavior-x: contain;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-
-        padding: 0 10vw 0 0;
+        flex-direction: column;
+        gap: var(--space-md);
     }
 
-    .work-grid::-webkit-scrollbar {
-        display: none;
+    .cue-list {
+        max-height: 34vh;
     }
 
-    .work-main,
-    .work-extra {
-        flex: 0 0 86vw;
-        width: 86vw;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        min-width: 0;
-    }
-
-    .work-extras {
-        display: contents;
+    .cue-row {
+        padding: 0.7rem 0.2rem;
+        gap: 0.7rem;
     }
 
     .work-caption {
         margin-top: 0.45rem;
-        width: 100%;
-        padding: 0 1.5rem;
-        box-sizing: border-box;
-        text-align: center;
-
         font-size: 0.66rem;
         line-height: 1.35;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .work-carousel-controls {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 0.8rem;
-        width: 100%;
-        margin-top: 0.9rem;
-        padding-right: 0.1rem;
-        box-sizing: border-box;
-        color: currentColor;
-    }
-
-    .work-carousel-arrow {
-        appearance: none;
-        border: 0;
-        padding: 0;
-        margin: 0;
-        width: 2rem;
-        height: 2rem;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        font-size: 1.25rem;
-        line-height: 1;
-        cursor: pointer;
-
-        opacity: 0.8;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .work-carousel-arrow:hover:not(:disabled) {
-        opacity: 1;
-        transform: translateX(2px);
-    }
-
-    .work-carousel-arrow:first-child:hover:not(:disabled) {
-        transform: translateX(-2px);
-    }
-
-    .work-carousel-arrow:disabled {
-        opacity: 0.2;
-        cursor: default;
-    }
-
-    .work-carousel-count {
-        min-width: 4rem;
-        text-align: center;
-        font-size: 0.62rem;
-        line-height: 1;
-        letter-spacing: 0.1em;
-        opacity: 0.55;
     }
 
     .video-play {
@@ -910,10 +901,6 @@ body {
     border-left: 3px solid currentColor;
     width: min(100%, calc(var(--video-cap) * 16 / 9));
     margin-inline: auto;
-}
-
-.work-extra .video-frame {
-    width: min(100%, calc(var(--video-cap-sm) * 16 / 9));
 }
 
 .video-iframe {
@@ -1238,7 +1225,6 @@ body {
 @media (max-width: 900px) and (max-height: 560px) {
     :root {
         --video-cap: clamp(5rem, 40vh, 14rem);
-        --video-cap-sm: clamp(3.5rem, 22vh, 8rem);
         --space-lg: clamp(0.6rem, 3vh, 1.2rem);
         --space-md: clamp(0.5rem, 2vh, 1rem);
         --space-sm: clamp(0.35rem, 1.4vh, 0.7rem);
@@ -1290,7 +1276,7 @@ body {
         font-size: 0.66rem;
     }
 
-    /* work: no carousel */
+    /* work: monitor and cue list side by side again */
     .work-heading {
         margin-bottom: var(--space-sm);
     }
@@ -1299,26 +1285,33 @@ body {
         font-size: clamp(1.2rem, 7vh, 2rem);
     }
 
-    .work-grid {
+    .work-deck {
         display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(120px, 0.9fr);
+        grid-template-columns: minmax(0, 1.5fr) minmax(140px, 0.9fr);
         gap: var(--space-sm);
-        width: 100%;
-        overflow: visible;
-        padding: 0;
     }
 
-    .work-main,
-    .work-extra {
-        flex: initial;
-        width: auto;
-        scroll-snap-align: none;
+    .cue-list {
+        max-height: 62vh;
     }
 
-    .work-extras {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-sm);
+    .cue-row {
+        padding: 0.45rem 0.2rem;
+        gap: 0.5rem;
+    }
+
+    .cue-title {
+        font-size: 0.6rem;
+    }
+
+    .cue-index,
+    .cue-meta {
+        font-size: 0.55rem;
+    }
+
+    .cue-list-head {
+        font-size: 0.5rem;
+        margin-bottom: 0.4rem;
     }
 
     .work-caption {
@@ -1334,10 +1327,6 @@ body {
         display: -webkit-box;
         -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
-    }
-
-    .work-carousel-controls {
-        display: none;
     }
 
     /* about: tighter type, same layout */
@@ -1394,42 +1383,68 @@ body {
     transform: translateY(2px);
 }
 
-/* second CTA: fixed to the bottom of the opening scene, fades as you scroll */
-.hero-contact-cue {
-    position: fixed;
-    z-index: 90;
-    left: 50%;
-    bottom: 2.3rem;
-    transform: translateX(-50%);
+/* second CTA: the quiet sibling sitting beside the button, same baseline */
+.hero-contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 
     appearance: none;
     border: 0;
-    padding: 0.4rem 0.6rem;
+    padding: 0.4rem 0;
     margin: 0;
     background: transparent;
-    color: #fff;
+    color: inherit;
     font: inherit;
-    mix-blend-mode: difference;
 
-    font-size: 0.78rem;
+    font-size: clamp(0.72rem, 0.95vw, 0.86rem);
     line-height: 1;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     white-space: nowrap;
-    text-decoration: underline;
-    text-underline-offset: 4px;
     cursor: pointer;
+
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.hero-contact-link:hover {
+    opacity: 1;
+}
+
+.hero-contact-or {
+    opacity: 0.6;
+}
+
+.hero-contact-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.hero-contact-link:hover .hero-contact-arrow {
+    transform: translateX(4px);
+}
+
+/* the slot holds button + link as one row, wrapping when narrow */
+.hero-scroll-cue-slot {
+    gap: clamp(1.1rem, 2vw, 2rem);
+    flex-wrap: wrap;
+}
+
+.hero-contact-link-mobile {
+    display: none;
 }
 
 @media (max-width: 900px) {
-    .hero-contact-cue {
-        bottom: 1.4rem;
-        font-size: 0.62rem;
+    .hero-contact-link-mobile {
+        display: inline-flex;
+        margin: 0.9rem auto 0;
+        font-size: 0.66rem;
     }
 }
 
 @media (max-width: 900px) and (max-height: 560px) {
-    .hero-contact-cue {
+    .hero-contact-link-mobile {
         display: none;
     }
 }
@@ -1684,13 +1699,8 @@ body {
 /* captions share their video's capped, centered box (desktop layouts only —
    the mobile carousel centers captions its own way) */
 @media (min-width: 901px) {
-    .work-main .work-caption {
+    .work-monitor .work-caption {
         width: min(100%, calc(var(--video-cap) * 16 / 9));
-        margin-inline: auto;
-    }
-
-    .work-extra .work-caption {
-        width: min(100%, calc(var(--video-cap-sm) * 16 / 9));
         margin-inline: auto;
     }
 }

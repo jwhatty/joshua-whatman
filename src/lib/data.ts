@@ -18,6 +18,9 @@ export const heroReel: Video = {
     duration: "01:24",
 };
 
+// Each category's videos are listed NEWEST FIRST — the cue list renders them
+// in this order and the top cue loads into the monitor. Adding work = adding
+// one entry here; the list scrolls when it outgrows the monitor.
 export const categories: Category[] = [
     {
         id: "sound-design",
@@ -25,10 +28,12 @@ export const categories: Category[] = [
         label: "Sound Design",
         color: CREAM,
         fg: INK,
-        main: "t-uK94HaxeM",
-        mainTitle: "Sound Redesign • Into The Spider-Verse",
-        mainThumbnail: "/thumbnails/sdthumbnail1.png",
-        extras: [
+        videos: [
+            {
+                videoId: "t-uK94HaxeM",
+                title: "Sound Redesign • Into The Spider-Verse",
+                thumbnail: "/thumbnails/sdthumbnail1.png",
+            },
             { title: "Design Reel 2", videoId: "SOUND_REEL_2" },
             { title: "Design Reel 3", videoId: "SOUND_REEL_3" },
         ],
@@ -39,9 +44,8 @@ export const categories: Category[] = [
         label: "Music Composition",
         color: INK,
         fg: CREAM,
-        main: "MUSIC_REEL",
-        mainTitle: "Main reel title here",
-        extras: [
+        videos: [
+            { title: "Main reel title here", videoId: "MUSIC_REEL" },
             { title: "Piece 2", videoId: "MUSIC_REEL_2" },
             { title: "Piece 3", videoId: "MUSIC_REEL_3" },
         ],
@@ -52,9 +56,8 @@ export const categories: Category[] = [
         label: "Audio Editing",
         color: CREAM,
         fg: INK,
-        main: "EDITING_REEL",
-        mainTitle: "Main reel title here",
-        extras: [
+        videos: [
+            { title: "Main reel title here", videoId: "EDITING_REEL" },
             { title: "Piece Two", videoId: "EDITING_REEL_2" },
             { title: "Piece Three", videoId: "EDITING_REEL_3" },
         ],

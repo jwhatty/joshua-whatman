@@ -14,6 +14,24 @@ export function Hero({ active }: { active: boolean }) {
         scrollToId(firstWorkId);
     }
 
+    // quiet sibling to the primary CTA; rendered in the slot on desktop and
+    // under the mobile cue on small screens
+    const contactLink = (extraClass: string) => (
+        <button
+            type="button"
+            className={`${monoFont.className} hero-contact-link ${extraClass}`}
+            onClick={() => scrollToId("contact")}
+            onMouseEnter={() => soundEngine.tick()}
+            aria-label="Skip to contact"
+        >
+            <span className="hero-contact-or">or</span>
+            <span>get in touch</span>
+            <span className="hero-contact-arrow" aria-hidden="true">
+                →
+            </span>
+        </button>
+    );
+
     return (
         <div className="hero-inner">
             {/* fixed, but the scene layer's paint containment scopes it to this
@@ -53,6 +71,8 @@ export function Hero({ active }: { active: boolean }) {
                                 <span>SELECTED WORKS</span>
                                 <span className="hero-scroll-arrow">↓</span>
                             </button>
+
+                            {contactLink("")}
                         </div>
                     </div>
                 </div>
@@ -77,6 +97,8 @@ export function Hero({ active }: { active: boolean }) {
                     <span>SELECTED WORKS</span>
                     <span className="hero-scroll-arrow">↓</span>
                 </button>
+
+                {contactLink("hero-contact-link-mobile")}
             </div>
         </div>
     );

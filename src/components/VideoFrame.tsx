@@ -25,6 +25,8 @@ type VideoFrameProps = {
     thumbnail?: string;
     duration?: string;
     active?: boolean;
+    /** Mount already playing — for cue-list loads, where the click was the intent. */
+    autoPlay?: boolean;
 };
 
 /**
@@ -33,9 +35,16 @@ type VideoFrameProps = {
  * "Stop playing" is simply unmounting the iframe, which happens when the scene
  * goes inactive or the frame scrolls out of view.
  */
-export function VideoFrame({ videoId, title, thumbnail, duration, active = true }: VideoFrameProps) {
+export function VideoFrame({
+    videoId,
+    title,
+    thumbnail,
+    duration,
+    active = true,
+    autoPlay = false,
+}: VideoFrameProps) {
     const frameRef = useRef<HTMLDivElement>(null);
-    const [started, setStarted] = useState(false);
+    const [started, setStarted] = useState(autoPlay);
 
     // Scenes don't unmount when scrolled off, they get hidden — so a scene going
     // inactive is what "stop playing" means here. Adjusting state during render
