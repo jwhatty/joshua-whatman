@@ -359,12 +359,8 @@ body {
 /* HERO SCROLL CUE                                   */
 /* ================================================== */
 
-.hero-scroll-cue-initial {
-    display: none;
-}
-
 /* the bare arrow that fades in at the foot of the screen as the hero's own
-   cues fade out — ScrollHint owns both */
+   ways scroll out of reach */
 .hero-scroll-cue-bottom {
     position: fixed;
     z-index: 90;

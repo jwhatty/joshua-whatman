@@ -3,10 +3,13 @@ import { sectionOrder } from "@/lib/data";
 import { monoFont } from "@/lib/fonts";
 import { scrollToId } from "@/lib/utils";
 
-/** Scroll-down cues: the hero label fades out, a bare arrow fades in below it. */
+/**
+ * The bare arrow at the foot of the screen, fading in as the hero's own two
+ * ways scroll out of reach. The labelled cue lives in `Hero` now — this one is
+ * only the nudge, and it follows the scene order rather than naming a scene.
+ */
 export function ScrollHint({ activeId }: { activeId: string }) {
     const { scrollY } = useScroll();
-    const topOpacity = useTransform(scrollY, [0, 80], [1, 0]);
     const bottomOpacity = useTransform(scrollY, [40, 140], [0, 1]);
 
     // whatever comes right after the current section, or null at the end
@@ -20,31 +23,17 @@ export function ScrollHint({ activeId }: { activeId: string }) {
         if (nextId) scrollToId(nextId);
     }
 
-    return (
-        <>
-            <motion.button
-                type="button"
-                className={`${monoFont.className} hero-scroll-cue-initial`}
-                style={{ opacity: topOpacity }}
-                onClick={handleClick}
-                aria-label={nextId ? `Scroll to ${nextId}` : "Scroll down"}
-                disabled={!nextId}
-            >
-                <span className="hero-scroll-label">SELECTED WORKS</span>
-                <span className="hero-scroll-arrow">↓</span>
-            </motion.button>
+    if (!nextId) return null;
 
-            {nextId && (
-                <motion.button
-                    type="button"
-                    className={`${monoFont.className} hero-scroll-cue-bottom`}
-                    style={{ opacity: bottomOpacity }}
-                    onClick={handleClick}
-                    aria-label={`Scroll to ${nextId}`}
-                >
-                    <span className="hero-scroll-arrow">↓</span>
-                </motion.button>
-            )}
-        </>
+    return (
+        <motion.button
+            type="button"
+            className={`${monoFont.className} hero-scroll-cue-bottom`}
+            style={{ opacity: bottomOpacity }}
+            onClick={handleClick}
+            aria-label={`Scroll to ${nextId}`}
+        >
+            <span className="hero-scroll-arrow">↓</span>
+        </motion.button>
     );
 }

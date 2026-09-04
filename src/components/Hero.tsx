@@ -5,8 +5,11 @@ import { displayFont, monoFont } from "@/lib/fonts";
 import { soundEngine } from "@/lib/sound";
 import { scrollToId } from "@/lib/utils";
 
-// fall back to "about" if every work category is switched off
-const firstWorkId = visibleCategories[0]?.id ?? "about";
+// with every work category switched off there is no work scene to point at,
+// so the first way out becomes "learn more" and lands on about instead
+const firstWork = visibleCategories[0];
+const firstWayId = firstWork?.id ?? "about";
+const firstWayLabel = firstWork ? "SELECTED WORKS" : "LEARN MORE";
 
 /**
  * Landing scene, as a masthead rather than a two-column pitch: the name at the
@@ -56,6 +59,7 @@ export function Hero() {
 
                 <p className={`${monoFont.className} hero-eyebrow`}>
                     <span className="hero-eyebrow-line">SOUND DESIGNER</span>
+                    <span className="hero-eyebrow-line">MUSIC PRODUCER</span>
                     <span className="hero-eyebrow-line">DIGITAL MEDIA</span>
                 </p>
             </div>
@@ -63,7 +67,7 @@ export function Hero() {
             <ReelBar reel={heroReel} />
 
             <div className={`${monoFont.className} hero-ways`}>
-                {way(firstWorkId, "SELECTED WORKS", "↓")}
+                {way(firstWayId, firstWayLabel, "↓")}
                 {way("contact", "GET IN TOUCH", "→", "instant")}
             </div>
         </div>

@@ -1,7 +1,7 @@
 import type { Category, Video } from "@/lib/types";
 
 // flip these to turn sections on/off
-const SHOW_SOUND_DESIGN = true;
+const SHOW_SOUND_DESIGN = false;
 const SHOW_COMPOSITION = false;
 const SHOW_AUDIO_EDITING = false;
 
@@ -11,11 +11,11 @@ export const ABOUT_BG = "#000000";
 export const CONTACT_BG = "#0a0a0a";
 export const CONTACT_FG = "#fafafa";
 
-// TODO: real demo reel — reusing the Spider-Verse video until it exists
 export const heroReel: Video = {
     videoId: "t-uK94HaxeM",
-    title: "Demo reel",
-    // ghosted under the hero's waveform poster, nearly blacked out
+    title: "Sound Redesign Demo • Into The Spider-Verse",
+    // the reel's own art; the hero bar shows the waveform, so this is what a
+    // poster would use
     thumbnail: "/thumbnails/sdthumbnail1.png",
     duration: "01:24",
 };
