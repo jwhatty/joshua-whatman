@@ -370,8 +370,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.6rem;
-    height: 2.6rem;
+    width: 2.4rem;
+    height: 2.4rem;
 
     appearance: none;
     border: 0;
@@ -386,13 +386,11 @@ body {
     mix-blend-mode: difference;
 }
 
-/* the → glyph turned down, same as the hero ways; the bounce carries the turn
-   because a keyframe transform replaces the rest state, not adds to it */
+/* the drawn arrow (Arrow.tsx), sized off the button's inherited type */
 .hero-scroll-arrow {
-    display: inline-block;
-    font-size: 1.6em;
-    line-height: 1;
-    transform: rotate(90deg);
+    display: block;
+    width: 0.66em;
+    height: 1.05em;
     animation: hero-arrow-bounce 1.7s ease-in-out infinite;
 }
 
@@ -402,11 +400,11 @@ body {
 
 @keyframes hero-arrow-bounce {
     0%, 100% {
-        transform: translateY(0) rotate(90deg);
+        transform: translateY(0);
     }
 
     50% {
-        transform: translateY(5px) rotate(90deg);
+        transform: translateY(4px);
     }
 }
 
@@ -600,14 +598,17 @@ body {
     transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* the same → glyph pointing down — Nova Mono's own ↓ is a stub, so both ways
-   share the fallback's long arrow and only the turn differs (see Hero) */
+/* the drawn arrow (Arrow.tsx), cap height tall; the caps' own centre sits a
+   hair above the line box's, so it rides up to meet them */
 .hero-way-arrow-down {
-    transform: rotate(90deg);
+    position: relative;
+    top: -0.04em;
+    width: 0.5em;
+    height: 0.8em;
 }
 
 .hero-ways .hero-way:first-child:hover .hero-way-arrow {
-    transform: translateY(3px) rotate(90deg);
+    transform: translateY(3px);
 }
 
 .hero-ways .hero-way:last-child:hover .hero-way-arrow {

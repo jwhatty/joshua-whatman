@@ -1,3 +1,4 @@
+import { ArrowDown } from "@/components/Arrow";
 import { ReelBar } from "@/components/ReelBar";
 import { Ticker } from "@/components/Ticker";
 import { heroReel, visibleCategories } from "@/lib/data";
@@ -20,10 +21,8 @@ const firstWayLabel = firstWork ? "SELECTED WORKS" : "LEARN MORE";
  */
 export function Hero() {
     // contact is three scenes down, so it jumps: scrolling smoothly there would
-    // play every wipe in between on the way. Both arrows are the one → glyph —
-    // Nova Mono has no →, so it falls to the size-adjusted fallback and comes
-    // out long and fine; ↓ it does have, and that one is a stub. Rotating the →
-    // (globals.css, `hero-way-arrow-down`) keeps the pair identical in weight.
+    // play every wipe in between on the way. The → is typed and the ↓ is drawn:
+    // see Arrow.tsx for why.
     const way = (id: string, label: string, direction: "down" | "right", behavior?: ScrollBehavior) => (
         <button
             type="button"
@@ -32,9 +31,13 @@ export function Hero() {
             onMouseEnter={() => soundEngine.tick()}
         >
             <span>{label}</span>
-            <span className={`hero-way-arrow hero-way-arrow-${direction}`} aria-hidden="true">
-                →
-            </span>
+            {direction === "down" ? (
+                <ArrowDown className="hero-way-arrow hero-way-arrow-down" />
+            ) : (
+                <span className="hero-way-arrow" aria-hidden="true">
+                    →
+                </span>
+            )}
         </button>
     );
 

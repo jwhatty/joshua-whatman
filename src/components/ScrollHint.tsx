@@ -1,4 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowDown } from "@/components/Arrow";
 import { sectionOrder } from "@/lib/data";
 import { monoFont } from "@/lib/fonts";
 import { scrollToId } from "@/lib/utils";
@@ -33,10 +34,7 @@ export function ScrollHint({ activeId }: { activeId: string }) {
             onClick={handleClick}
             aria-label={`Scroll to ${nextId}`}
         >
-            {/* the → glyph turned down, for the same reason as the hero ways: see Hero */}
-            <span className="hero-scroll-arrow" aria-hidden="true">
-                →
-            </span>
+            <ArrowDown className="hero-scroll-arrow" />
         </motion.button>
     );
 }
