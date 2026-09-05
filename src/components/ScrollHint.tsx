@@ -33,7 +33,10 @@ export function ScrollHint({ activeId }: { activeId: string }) {
             onClick={handleClick}
             aria-label={`Scroll to ${nextId}`}
         >
-            <span className="hero-scroll-arrow">↓</span>
+            {/* the → glyph turned down, for the same reason as the hero ways: see Hero */}
+            <span className="hero-scroll-arrow" aria-hidden="true">
+                →
+            </span>
         </motion.button>
     );
 }

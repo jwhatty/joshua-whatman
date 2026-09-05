@@ -20,8 +20,11 @@ const firstWayLabel = firstWork ? "SELECTED WORKS" : "LEARN MORE";
  */
 export function Hero() {
     // contact is three scenes down, so it jumps: scrolling smoothly there would
-    // play every wipe in between on the way
-    const way = (id: string, label: string, arrow: string, behavior?: ScrollBehavior) => (
+    // play every wipe in between on the way. Both arrows are the one → glyph —
+    // Nova Mono has no →, so it falls to the size-adjusted fallback and comes
+    // out long and fine; ↓ it does have, and that one is a stub. Rotating the →
+    // (globals.css, `hero-way-arrow-down`) keeps the pair identical in weight.
+    const way = (id: string, label: string, direction: "down" | "right", behavior?: ScrollBehavior) => (
         <button
             type="button"
             className="hero-way"
@@ -29,8 +32,8 @@ export function Hero() {
             onMouseEnter={() => soundEngine.tick()}
         >
             <span>{label}</span>
-            <span className="hero-way-arrow" aria-hidden="true">
-                {arrow}
+            <span className={`hero-way-arrow hero-way-arrow-${direction}`} aria-hidden="true">
+                →
             </span>
         </button>
     );
@@ -77,8 +80,8 @@ export function Hero() {
             <ReelBar reel={heroReel} />
 
             <div className={`${monoFont.className} hero-ways`}>
-                {way(firstWayId, firstWayLabel, "↓")}
-                {way("contact", "GET IN TOUCH", "→", "instant")}
+                {way(firstWayId, firstWayLabel, "down")}
+                {way("contact", "GET IN TOUCH", "right", "instant")}
             </div>
         </div>
     );

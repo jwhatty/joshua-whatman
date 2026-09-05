@@ -370,8 +370,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.6rem;
+    height: 2.6rem;
 
     appearance: none;
     border: 0;
@@ -386,10 +386,13 @@ body {
     mix-blend-mode: difference;
 }
 
+/* the → glyph turned down, same as the hero ways; the bounce carries the turn
+   because a keyframe transform replaces the rest state, not adds to it */
 .hero-scroll-arrow {
     display: inline-block;
-    font-size: 1.15em;
+    font-size: 1.6em;
     line-height: 1;
+    transform: rotate(90deg);
     animation: hero-arrow-bounce 1.7s ease-in-out infinite;
 }
 
@@ -399,11 +402,11 @@ body {
 
 @keyframes hero-arrow-bounce {
     0%, 100% {
-        transform: translateY(0);
+        transform: translateY(0) rotate(90deg);
     }
 
     50% {
-        transform: translateY(4px);
+        transform: translateY(5px) rotate(90deg);
     }
 }
 
@@ -576,14 +579,14 @@ body {
     color: inherit;
     font: inherit;
 
-    font-size: clamp(0.66rem, 0.85vw, 0.78rem);
+    font-size: clamp(0.7rem, 0.92vw, 0.84rem);
     line-height: 1;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     white-space: nowrap;
     cursor: pointer;
 
-    opacity: 0.55;
+    opacity: 0.78;
     transition: opacity 0.2s ease;
 }
 
@@ -597,8 +600,14 @@ body {
     transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* the same → glyph pointing down — Nova Mono's own ↓ is a stub, so both ways
+   share the fallback's long arrow and only the turn differs (see Hero) */
+.hero-way-arrow-down {
+    transform: rotate(90deg);
+}
+
 .hero-ways .hero-way:first-child:hover .hero-way-arrow {
-    transform: translateY(3px);
+    transform: translateY(3px) rotate(90deg);
 }
 
 .hero-ways .hero-way:last-child:hover .hero-way-arrow {
@@ -1201,11 +1210,11 @@ body {
 
     width: max-content;
     max-width: 90vw;
-    font-size: 0.68rem;
-    line-height: 1.4;
+    font-size: 0.72rem;
+    line-height: 1.45;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    opacity: 0.35;
+    opacity: 0.5;
     white-space: nowrap;
 }
 
