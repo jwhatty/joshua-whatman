@@ -18,6 +18,8 @@ Single-page portfolio, App Router, TypeScript only — no `.js`/`.jsx` anywhere.
 
 `SceneStack` owns the only scroll listener. Per frame it writes two CSS vars on the animating layer — `--scene-inset` (wipe travel) and `--seam-amp` (waveform-tooth height on the wipe edge, zero at rest) — and publishes to `lib/playhead.ts`. Everything else that moves per frame (the timecode, the slate, the sound engine's crossfades) subscribes to that bus and writes its own nodes imperatively; nothing re-renders on scroll. Discrete scene state stays CSS keyed off `data-scene-state`. Add scene styling in `globals.css`, not inline.
 
+The about scene's entrance is the one React state hung off the bus: `About` subscribes and flips a single boolean (`about-live`) once a third of the scene is uncovered, from either direction, and every move — the title rising out of its mask, the still wiping in, the channel LEDs arming — is a CSS transition keyed off that class, so it plays on every arrival and plays back out on the way through. The frame-rate listener only ever sets the same boolean, which React bails out of.
+
 All audio is synthesized in `lib/sound.ts` (noise + oscillators, no files), off by default, and only ever started from the `SoundToggle` click so the AudioContext is gesture-born.
 
 ## Video
