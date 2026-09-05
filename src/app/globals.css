@@ -90,8 +90,8 @@ body {
     height: clamp(1.15rem, 2.2vw, 1.5rem);
     background-color: var(--cream);
 
-    -webkit-mask-image: url("/logo.png");
-    mask-image: url("/logo.png");
+    -webkit-mask-image: url("/logo.svg");
+    mask-image: url("/logo.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
