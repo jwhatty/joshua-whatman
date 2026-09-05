@@ -469,6 +469,14 @@ body {
     );
     --hero-logo-gap: clamp(1.1rem, 2.2vw, 2.25rem);
 
+    /* How far the entrance mask on each name line reaches past the line box.
+       A leading this tight is smaller than the face's own content box, so the
+       baseline lands *below* the line box and a mask clipped to it shears the
+       feet off both words. Read in em of the title (see `.hero-line`), and
+       generous rather than fitted: the mask reaches this far and `hero-rise`
+       starts this much further down, so no face can outgrow it. */
+    --hero-line-bleed: 0.18em;
+
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
@@ -518,7 +526,12 @@ body {
     mask-size: contain;
 }
 
+/* A column of flex items, not blocks: the lines carry the negative margins
+   that pull `--hero-line-bleed` back off the layout, and adjoining negative
+   block margins would collapse to one of them and open the stack by a bleed. */
 .hero-title {
+    display: flex;
+    flex-direction: column;
     margin: 0;
     font-size: var(--hero-title-size);
     line-height: var(--hero-title-leading);
@@ -2088,9 +2101,20 @@ body {
 }
 
 /* hero entrance — name rises out of a masked line, the rest follows */
+
+/* The mask. Clipped to the line box it would cut the name, because the stack's
+   leading is tighter than the face's content box: at 0.71 leading Agdasima
+   puts the baseline 0.75em down, so the last 0.04em of every letter — and all
+   of the J's tail — falls outside the box and disappears. So the mask bleeds
+   `--hero-line-bleed` past the box in both directions and the same bleed comes
+   straight back off as margin: the glyphs get their room, and the stack keeps
+   the leading the logo's ink-box math is derived from. `hero-rise` starts a
+   bleed's worth further down to match. */
 .hero-line {
     display: block;
     overflow: hidden;
+    padding-block: var(--hero-line-bleed);
+    margin-block: calc(-1 * var(--hero-line-bleed));
 }
 
 .hero-line-inner {
@@ -2102,9 +2126,10 @@ body {
     animation-delay: 0.09s;
 }
 
+/* 108% of the line box clears an unbled mask; the two bleeds clear this one. */
 @keyframes hero-rise {
     from {
-        transform: translateY(108%);
+        transform: translateY(calc(108% + 2 * var(--hero-line-bleed)));
     }
 }
 
