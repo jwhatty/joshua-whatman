@@ -49,3 +49,16 @@ export function waveHeights(count: number = WAVE_BARS, shape = 1): number[] {
 export function barDelay(i: number): string {
     return `${-((i * 137) % 1400)}ms`;
 }
+
+/**
+ * Where the bar sits along the strip, 0 at the head and 1 at the tail.
+ *
+ * The scattered `barDelay` is what makes a *frozen* wave look real; this is its
+ * opposite and the sweep's whole trick — a delay that climbs with position, so
+ * the same one-bar keyframe becomes a crest walking left to right instead of
+ * 128 bars twitching at once. See `wave-sweep` in globals.css.
+ */
+export function barProgress(i: number, count: number): string {
+    if (count < 2) return "0";
+    return (i / (count - 1)).toFixed(4);
+}

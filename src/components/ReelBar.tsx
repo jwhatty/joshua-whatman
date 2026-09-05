@@ -23,6 +23,10 @@ type ReelBarProps = {
  * Idle it's a frozen waveform behind a hairline; hovered, the signal starts
  * moving and the play ring fills. The reward for reaching for it is the wave.
  *
+ * On touch there is no reaching, so the bar arrives already playing: the ring
+ * comes filled and a crest sweeps the strip on a loop. See `wave-sweep` and the
+ * `@media (hover: none)` block in globals.css.
+ *
  * It also puts its reel on standby — once the page has gone quiet, and again
  * the moment anyone reaches for the bar — so pressing it is a play command
  * rather than a cold YouTube load. See `lib/reel`.

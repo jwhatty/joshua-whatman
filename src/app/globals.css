@@ -912,6 +912,50 @@ body {
     }
 }
 
+/* Touch can't hover, so the reward for reaching for a wave never arrives and
+   the signal would sit frozen for the whole visit. There it runs by itself —
+   but not the hover dance, which at 128 bars reads as static. One crest walks
+   the strip instead, a scrub head passing over the signal, because the delay
+   climbs with the bar's position (`--bar-progress`) rather than scattering.
+   Cheap by construction: transform and opacity only, one keyframe rule for
+   every bar on the site, and nothing runs on a scene that isn't on screen. */
+@keyframes wave-sweep {
+    0%, 76% {
+        transform: scaleY(0.72);
+        opacity: 0.5;
+        /* the head arrives quickly and softens at the top */
+        animation-timing-function: ease-out;
+    }
+
+    88% {
+        transform: scaleY(calc(0.72 + 0.66 * var(--bar-env, 1)));
+        opacity: calc(0.5 + 0.5 * var(--bar-env, 1));
+        animation-timing-function: ease-in;
+    }
+
+    100% {
+        transform: scaleY(0.72);
+        opacity: 0.5;
+    }
+}
+
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .scene-layer:not([data-scene-state="hidden"]) .reel-bar .wave-bar,
+    .scene-layer:not([data-scene-state="hidden"]) .video-placeholder .wave-bar {
+        /* how much of the lift this bar is allowed: nothing at either end of the
+           strip, everything from an eighth of the way in. Without it the crest
+           wraps — lit at both edges at once — and the head stops reading as one
+           thing travelling. With it the ring fires, the crest grows out of the
+           head, crosses, and dies into the runtime. */
+        --bar-env: min(1, calc(var(--bar-progress, 0) * 8), calc((1 - var(--bar-progress, 0)) * 8));
+
+        animation-name: wave-sweep;
+        animation-duration: var(--sweep-period, 2.9s);
+        animation-delay: calc((var(--bar-progress, 0) - 1) * var(--sweep-period, 2.9s));
+        animation-play-state: running;
+    }
+}
+
 /* ================================================== */
 /* VIDEO                                             */
 /* ================================================== */
@@ -984,6 +1028,18 @@ body {
 .video-placeholder:hover .wave-bar,
 .video-placeholder:focus-visible .wave-bar {
     animation-play-state: running;
+}
+
+/* a poster on a phone gets the same live signal as the hero's bar, one beat
+   quicker — it's a smaller box, so the crest has less ground to cover */
+@media (hover: none) {
+    .video-placeholder {
+        --sweep-period: 2.2s;
+    }
+
+    .video-wave {
+        opacity: 0.6;
+    }
 }
 
 .video-duration {
@@ -1878,8 +1934,15 @@ body {
     background: rgba(244, 239, 224, 0.07);
 }
 
+/* touch never fires :hover, so the press itself has to answer */
+.reel-bar:active {
+    border-color: rgba(244, 239, 224, 0.7);
+    background: rgba(244, 239, 224, 0.1);
+}
+
 .reel-bar-play {
     flex: none;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1896,6 +1959,16 @@ body {
     background: var(--cream);
     border-color: var(--cream);
     transform: scale(1.06);
+}
+
+.reel-bar:active .reel-bar-play {
+    background: var(--cream);
+    border-color: var(--cream);
+    transform: scale(0.94);
+}
+
+.reel-bar:active .reel-bar-play-icon {
+    border-left-color: var(--ink);
 }
 
 .reel-bar-play-icon {
@@ -1943,6 +2016,10 @@ body {
     opacity: 0.8;
 }
 
+.reel-bar:active .reel-bar-wave {
+    opacity: 0.95;
+}
+
 .reel-bar:hover .wave-bar,
 .reel-bar:focus-visible .wave-bar {
     animation-play-state: running;
@@ -1960,6 +2037,67 @@ body {
 .reel-bar:hover .reel-bar-time,
 .reel-bar:focus-visible .reel-bar-time {
     opacity: 1;
+}
+
+/* THE PHONE'S IDLE STATE. No hover means no approach and no reward, so the bar
+   has to arrive already alive: the ring filled rather than waiting to be lit,
+   the runtime legible, and the signal running its sweep underneath. Read this
+   with `wave-sweep` — the ring fires a beat before the left-most bar lifts, so
+   the play button looks like it's pushing the crest down the strip. */
+@media (hover: none) {
+    .reel-bar {
+        --sweep-period: 2.9s;
+        border-color: rgba(244, 239, 224, 0.3);
+    }
+
+    .reel-bar-play {
+        background: var(--cream);
+        border-color: var(--cream);
+    }
+
+    .reel-bar-play-icon {
+        border-left-color: var(--ink);
+    }
+
+    .reel-bar-play::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border: 1px solid var(--cream);
+        border-radius: 999px;
+        opacity: 0;
+    }
+
+    .reel-bar-wave {
+        opacity: 0.6;
+    }
+
+    .reel-bar-time {
+        opacity: 0.75;
+    }
+}
+
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .reel-bar-play::after {
+        animation: reel-bar-ping var(--sweep-period, 2.9s) linear infinite;
+    }
+}
+
+@keyframes reel-bar-ping {
+    0%, 74% {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    82% {
+        opacity: 0.4;
+        transform: scale(1.03);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
 }
 
 @media (max-width: 560px) {
@@ -1983,9 +2121,17 @@ body {
     }
 }
 
-@media (max-width: 400px) {
-    .reel-bar-wave {
+/* the wave is the whole point on a phone, so thin the signal rather than drop
+   it: the 560 rule already took every even bar, this takes half of what's left.
+   Thirty-two bars, each four times as wide — still a waveform, still legible. */
+@media (max-width: 420px) {
+    .reel-bar-wave .wave-bar:nth-child(4n + 3) {
         display: none;
+    }
+
+    .reel-bar-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
     }
 }
 
