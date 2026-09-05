@@ -27,7 +27,7 @@ type ReelBarProps = {
  * the moment anyone reaches for the bar — so pressing it is a play command
  * rather than a cold YouTube load. See `lib/reel`.
  */
-export function ReelBar({ reel, label = "PLAY THE REEL" }: ReelBarProps) {
+export function ReelBar({ reel, label = "FEATURED DEMO" }: ReelBarProps) {
     useWarmOnIdle(reel);
 
     return (
