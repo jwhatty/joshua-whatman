@@ -461,9 +461,9 @@ body {
        the unit: the mark is sized to it, so it cap-aligns with JOSHUA and
        lands on WHATMAN's baseline. Breakpoints retune the title size and the
        gap; the mark follows. */
-    --hero-title-size: clamp(2rem, 8.5vmin, 6.2rem);
-    --hero-title-leading: 0.88;
-    --hero-cap: 0.86; /* Anton's cap height in em, measured off the rendered face */
+    --hero-title-size: clamp(2.45rem, 10.5vmin, 7.65rem);
+    --hero-title-leading: 0.71;
+    --hero-cap: 0.7; /* Agdasima's cap height in em, measured off the rendered face */
     --hero-logo-size: calc(
         var(--hero-title-size) * (var(--hero-title-leading) + var(--hero-cap))
     );
@@ -602,7 +602,7 @@ body {
     .hero-inner {
         width: min(1100px, 90vw);
 
-        --hero-title-size: clamp(2.6rem, min(6vw, 8vh), 5rem);
+        --hero-title-size: clamp(3.2rem, min(7.4vw, 9.9vh), 6.15rem);
         --hero-logo-gap: 1.15rem;
     }
 }
@@ -613,7 +613,7 @@ body {
         gap: var(--space-md);
         text-align: center;
 
-        --hero-title-size: clamp(2.2rem, min(11vw, 11vh), 4rem);
+        --hero-title-size: clamp(2.7rem, min(13.6vw, 13.6vh), 4.9rem);
         --hero-logo-gap: clamp(1rem, 3vw, 1.5rem);
     }
 
@@ -657,7 +657,7 @@ body {
     .hero-inner {
         width: 90vw;
 
-        --hero-title-size: clamp(2rem, min(12vw, 12vh), 3.4rem);
+        --hero-title-size: clamp(2.45rem, min(14.8vw, 14.8vh), 4.2rem);
         --hero-logo-gap: 0.85rem;
     }
 
@@ -690,8 +690,8 @@ body {
 
 .work-title {
     margin: 0;
-    font-size: clamp(2rem, 9vmin, 5.5rem);
-    line-height: 0.9;
+    font-size: clamp(2.45rem, 11.1vmin, 6.8rem);
+    line-height: 0.73;
 }
 
 /* the deck: one monitor, one cue list. However many videos a category grows
@@ -812,7 +812,7 @@ body {
     }
 
     .work-title {
-        font-size: clamp(1.7rem, min(9vw, 9vh), 2.6rem);
+        font-size: clamp(2.1rem, min(11.1vw, 11.1vh), 3.2rem);
     }
 
     .work-deck {
@@ -1109,8 +1109,8 @@ body {
 
 .about-title {
     margin: 0 0 var(--space-lg);
-    font-size: clamp(2rem, 9vmin, 7rem);
-    line-height: 0.88;
+    font-size: clamp(2.45rem, 11.1vmin, 8.6rem);
+    line-height: 0.71;
     letter-spacing: 0.01em;
     color: var(--cream);
 }
@@ -1140,7 +1140,7 @@ body {
 
     .about-title {
         margin-bottom: var(--space-md);
-        font-size: clamp(2.4rem, min(13vw, 13vh), 4.5rem);
+        font-size: clamp(2.95rem, min(16vw, 16vh), 5.55rem);
     }
 
     .about-copy p {
@@ -1172,8 +1172,8 @@ body {
 
 .contact-line {
     margin: 0 0 var(--space-lg);
-    font-size: clamp(1.7rem, 8.5vmin, 4.2rem);
-    line-height: 1.02;
+    font-size: clamp(2.1rem, 10.5vmin, 5.2rem);
+    line-height: 0.83;
 }
 
 .contact-link {
@@ -1225,7 +1225,7 @@ body {
         gap: var(--space-sm);
         text-align: left;
 
-        --hero-title-size: clamp(1.3rem, 7vh, 2.6rem);
+        --hero-title-size: clamp(1.6rem, 8.6vh, 3.2rem);
         --hero-logo-gap: 0.6rem;
     }
 
@@ -1327,7 +1327,7 @@ body {
     /* about: tighter type, same layout */
     .about-title {
         margin-bottom: var(--space-sm);
-        font-size: clamp(1.6rem, 8vh, 3rem);
+        font-size: clamp(1.95rem, 9.9vh, 3.7rem);
     }
 
     .about-copy p {
@@ -1340,7 +1340,7 @@ body {
 
     /* contact: tighter type, same layout */
     .contact-line {
-        font-size: clamp(1.3rem, 7vh, 2.2rem);
+        font-size: clamp(1.6rem, 8.6vh, 2.7rem);
     }
 
     .contact-credit {
@@ -2200,9 +2200,9 @@ body {
 /* enormous ghosted scene number behind each work section — poster typography */
 .work-ghost-index {
     position: absolute;
-    top: -0.18em;
-    right: -0.04em;
-    font-size: clamp(10rem, 42vmin, 30rem);
+    top: -0.146em;
+    right: -0.032em;
+    font-size: clamp(12.3rem, 51.8vmin, 37rem);
     line-height: 1;
     opacity: 0.05;
     pointer-events: none;

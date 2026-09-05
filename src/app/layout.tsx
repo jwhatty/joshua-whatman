@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { geistMono, geistSans } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -66,10 +65,7 @@ const structuredData = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
     <body className="min-h-full flex flex-col">
     {/* YouTube is the one third party on the site, and the reel's embed starts
         loading before anyone presses anything (see `lib/reel`). Open the
