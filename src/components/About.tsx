@@ -12,7 +12,7 @@ export function About() {
             </div>
 
             <div className="about-content">
-                <h2 className={`${displayFont.className} about-title`}>About Me</h2>
+                <h2 className={`${displayFont.className} about-title`}>ABOUT ME</h2>
 
                 <div className="about-copy">
                     <p className="about-lead">Sound Designer, Music Producer - Victoria, BC</p>
