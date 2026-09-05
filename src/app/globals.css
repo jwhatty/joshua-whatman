@@ -519,8 +519,13 @@ body {
     mask-size: contain;
 }
 
+/* Shrink-wrapped to the longer line on purpose: that width is the target the
+   letter spread below justifies the shorter line to. Left as a block it would
+   take the whole grid column — wide and empty at some breakpoints — and the
+   spread would justify to the column instead of to WHATMAN. */
 .hero-title {
     margin: 0;
+    width: fit-content;
     font-size: var(--hero-title-size);
     line-height: var(--hero-title-leading);
     letter-spacing: 0.01em;
@@ -2094,9 +2099,20 @@ body {
     overflow: hidden;
 }
 
+/* Both lines are letter spans justified edge to edge, so JOSHUA tracks out to
+   WHATMAN's natural width and the two end flush, the way the share image sets
+   the name. The long line has no free space to distribute and keeps its own
+   tracking; whichever line is longer wins, so a change of display face retunes
+   this by itself. Still the animated block, so `hero-rise` rides it. */
 .hero-line-inner {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     animation: hero-rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* only the gaps grow — never the glyphs */
+.hero-letter {
+    flex: none;
 }
 
 .hero-line-second {
