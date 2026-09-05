@@ -12,6 +12,25 @@ const firstWayId = firstWork?.id ?? "about";
 const firstWayLabel = firstWork ? "SELECTED WORKS" : "LEARN MORE";
 
 /**
+ * One line of the wordmark, set letter by letter. The spans are what
+ * `.hero-line-inner`'s flex row spreads, so the short word tracks out to the
+ * long one's width the way Joshua set the name on the share image — no tuned
+ * em value, so it survives the display face changing under it. The h1 carries
+ * the accessible name; the whole rendering is hidden from the tree.
+ */
+const nameLine = (word: string, modifier = "") => (
+    <span className="hero-line" aria-hidden="true">
+        <span className={`hero-line-inner ${modifier}`.trimEnd()}>
+            {[...word].map((letter, i) => (
+                <span className="hero-letter" key={`${letter}-${i}`}>
+                    {letter}
+                </span>
+            ))}
+        </span>
+    </span>
+);
+
+/**
  * Landing scene, as a masthead rather than a two-column pitch: the name at the
  * left, the discipline set against it at the right, the reel spanning the whole
  * measure between them as a transport bar, and the two quiet ways onward under
@@ -47,13 +66,12 @@ export function Hero() {
                         <span className="hero-logo-mark" />
                     </div>
 
-                    <h1 className={`${displayFont.className} hero-title`}>
-                        <span className="hero-line">
-                            <span className="hero-line-inner">JOSHUA</span>
-                        </span>
-                        <span className="hero-line">
-                            <span className="hero-line-inner hero-line-second">WHATMAN</span>
-                        </span>
+                    <h1
+                        className={`${displayFont.className} hero-title`}
+                        aria-label="Joshua Whatman"
+                    >
+                        {nameLine("JOSHUA")}
+                        {nameLine("WHATMAN", "hero-line-second")}
                     </h1>
                 </div>
 
