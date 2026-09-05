@@ -37,8 +37,8 @@ export function Contact() {
                 © 2026 Joshua Whatman
                 <br />
                 Photography: JazzPizza
-                <br />
-                Sound design: obviously
+                {/* "Sound design: obviously" returns once the beds in lib/sound.ts are
+                    his own work rather than synthesized noise */}
             </div>
         </div>
     );

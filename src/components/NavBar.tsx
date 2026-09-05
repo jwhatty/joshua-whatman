@@ -36,7 +36,7 @@ export function NavBar({ activeId }: { activeId: string }) {
             </button>
 
             <nav className={`${monoFont.className} site-nav`} style={{ color: sectionColor }}>
-                {navItems.map((item, i) => (
+                {navItems.map((item) => (
                     <button
                         key={item.id}
                         type="button"
@@ -44,7 +44,6 @@ export function NavBar({ activeId }: { activeId: string }) {
                         onClick={() => scrollToId(item.id)}
                         onMouseEnter={() => soundEngine.tick()}
                     >
-                        <span className="site-nav-index">{String(i + 1).padStart(2, "0")}</span>
                         {item.label}
                     </button>
                 ))}

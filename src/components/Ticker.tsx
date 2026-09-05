@@ -1,19 +1,12 @@
 import { monoFont } from "@/lib/fonts";
 
-// real disciplines from the about copy, not filler
-const ITEMS = [
-    "SOUND DESIGN",
-    "MUSIC PRODUCTION",
-    "AUDIO POST",
-    "STUDIO RECORDING",
-    "LIVE RECORDING",
-    "CONCERT PRODUCTION",
-    "RADIO",
-];
+// the services on offer, not the whole CV — that lives in the about copy
+const ITEMS = ["SOUND DESIGN", "MUSIC PRODUCTION", "AUDIO POST"];
 
-// three passes per half so one half outspans any viewport; the loop shifts
-// exactly one half, so the seam is invisible
-const half = `${[...ITEMS, ...ITEMS, ...ITEMS].join("  ·  ")}  ·  `;
+// enough passes per half that one half outspans any viewport; the loop
+// shifts exactly one half, so the seam is invisible
+const PASSES = 8;
+const half = `${Array.from({ length: PASSES }, () => ITEMS).flat().join("  ·  ")}  ·  `;
 
 /**
  * Hairline ticker across the top of the hero — the track list of the session.

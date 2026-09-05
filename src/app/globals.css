@@ -1845,15 +1845,6 @@ body {
 /* PLAYHEAD CHROME                                   */
 /* ================================================== */
 
-.site-nav-index {
-    position: relative;
-    top: -0.45em;
-    margin-right: 0.5em;
-    font-size: 0.62em;
-    letter-spacing: 0.08em;
-    opacity: 0.5;
-}
-
 .playhead-timecode {
     position: fixed;
     right: 2rem;
