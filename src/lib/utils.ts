@@ -12,3 +12,20 @@ export function clamp(value: number, min: number, max: number): number {
 export function scrollToId(id: string, behavior: ScrollBehavior = "smooth"): void {
     document.getElementById(id)?.scrollIntoView({ behavior, block: "start" });
 }
+
+/**
+ * Play a CSS animation again from the start of its active phase. The finished
+ * animation named `name` on `el` (or anything under it) is seeked back to the
+ * end of its delay and resumes; one still running is left alone, so a burst of
+ * hovers can't stutter it. The keyframes and timing stay in the stylesheet —
+ * this only rewinds them — and where reduced motion has set `animation: none`
+ * there is nothing to find, so nothing happens.
+ */
+export function replayAnimation(el: Element, name: string): void {
+    for (const anim of el.getAnimations({ subtree: true })) {
+        if (!(anim instanceof CSSAnimation) || anim.animationName !== name) continue;
+        if (anim.playState !== "finished") return;
+        anim.currentTime = anim.effect?.getTiming().delay ?? 0;
+        anim.play();
+    }
+}

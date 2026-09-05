@@ -3,7 +3,7 @@ import { Ticker } from "@/components/Ticker";
 import { heroReel, visibleCategories } from "@/lib/data";
 import { displayFont, monoFont } from "@/lib/fonts";
 import { soundEngine } from "@/lib/sound";
-import { scrollToId } from "@/lib/utils";
+import { replayAnimation, scrollToId } from "@/lib/utils";
 
 // with every work category switched off there is no work scene to point at,
 // so the first way out becomes "learn more" and lands on about instead
@@ -62,7 +62,17 @@ export function Hero() {
 
             <div className="hero-masthead">
                 <div className="hero-name-row">
-                    <div className="hero-logo" aria-hidden="true">
+                    {/* waves hello on load (globals.css, `hero-wave`) and again
+                        on hover or tap — pointerenter fires for both, a touch
+                        being a pointer that arrives and leaves in one tap */}
+                    <div
+                        className="hero-logo"
+                        aria-hidden="true"
+                        onPointerEnter={(e) => {
+                            soundEngine.tick();
+                            replayAnimation(e.currentTarget, "hero-wave");
+                        }}
+                    >
                         <span className="hero-logo-mark" />
                     </div>
 
