@@ -1,17 +1,7 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL("https://www.joshuawhatman.com"),
   title: "Joshua Whatman | Sound Designer & Music Producer",
   description:
@@ -23,37 +13,7 @@ export const metadata = {
         "Sound design for TV, Film, Games - Portfolio by Joshua Whatman.",
     url: "https://www.joshuawhatman.com/",
     siteName: "Joshua Whatman",
-    images: [
-      {
-        url: "/ogimage.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Joshua Whatman - Sound Designer & Music Producer",
-      },
-    ],
     type: "website",
-  },
-
-  icons: {
-    icon: [
-      {
-        url: "/favicon-16x16.png",
-        type: "image/png",
-        sizes: "16x16",
-      },
-      {
-        url: "/favicon-32x32.png",
-        type: "image/png",
-        sizes: "32x32",
-      },
-    ],
-    apple: [
-      {
-        url: "/apple-touch-icon.png",
-        type: "image/png",
-        sizes: "180x180",
-      },
-    ],
   },
 };
 
@@ -103,13 +63,18 @@ const structuredData = {
   ],
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
     <body className="min-h-full flex flex-col">
+    {/* YouTube is the one third party on the site, and the reel's embed starts
+        loading before anyone presses anything (see `lib/reel`). Open the
+        sockets in the document head so that load — and any click that beats it
+        — starts on a connection that already exists. React hoists these. */}
+    <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+    <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://i.ytimg.com" />
+
     {children}
 
     <script

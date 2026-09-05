@@ -11,7 +11,6 @@
 
     /* height cap in vh, width derives from it (height * 16/9)  */
     --video-cap: clamp(7rem, 52vh, 23rem);
-    --video-cap-sm: clamp(5rem, 30vh, 13rem);
 }
 
 html, body {
@@ -91,8 +90,8 @@ body {
     height: clamp(1.15rem, 2.2vw, 1.5rem);
     background-color: var(--cream);
 
-    -webkit-mask-image: url("/logo.png");
-    mask-image: url("/logo.png");
+    -webkit-mask-image: url("/logo.svg");
+    mask-image: url("/logo.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
@@ -206,16 +205,141 @@ body {
     will-change: clip-path;
     clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
     -webkit-clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
+
+    /* default = off screen; SceneStack drives data-scene-state as you scroll */
+    visibility: hidden;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* the scene currently owning the screen */
+.scene-layer[data-scene-state="base"] {
+    visibility: visible;
+    opacity: 1;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+/* the scene wiping in over it — only takes clicks once the wipe is nearly done */
+.scene-layer[data-scene-state="incoming"] {
+    visibility: visible;
+    opacity: 1;
+    z-index: 3;
+}
+
+.scene-layer[data-scene-state="incoming"][data-scene-interactive="true"] {
+    pointer-events: auto;
+}
+
+/* Wipe edges carry a waveform: square teeth of varying depth, generated in
+   the same bar language as the video posters. Teeth reach OUTWARD from the
+   revealed band and are scaled by --seam-amp, so a parked scene (amp 0) has
+   dead-straight edges and the serration only exists while the doors move. */
+.scene-layer-shutter {
+    clip-path: polygon(
+        0% calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)),
+        8.33% calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)),
+        8.33% calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)),
+        16.67% calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)),
+        16.67% calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)),
+        25% calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)),
+        25% calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)),
+        33.33% calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)),
+        33.33% calc(var(--scene-inset) - 1% * var(--seam-amp, 0)),
+        41.67% calc(var(--scene-inset) - 1% * var(--seam-amp, 0)),
+        41.67% calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)),
+        50% calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)),
+        50% calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)),
+        58.33% calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)),
+        58.33% calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)),
+        66.67% calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)),
+        66.67% calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)),
+        75% calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)),
+        75% calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)),
+        83.33% calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)),
+        83.33% calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)),
+        91.67% calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)),
+        91.67% calc(var(--scene-inset) - 2% * var(--seam-amp, 0)),
+        100% calc(var(--scene-inset) - 2% * var(--seam-amp, 0)),
+        100% calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)),
+        91.67% calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)),
+        91.67% calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)),
+        83.33% calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)),
+        83.33% calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)),
+        75% calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)),
+        75% calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)),
+        66.67% calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)),
+        66.67% calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)),
+        58.33% calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)),
+        58.33% calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)),
+        50% calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)),
+        50% calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)),
+        41.67% calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)),
+        41.67% calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)),
+        33.33% calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)),
+        33.33% calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)),
+        25% calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)),
+        25% calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)),
+        16.67% calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)),
+        16.67% calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)),
+        8.33% calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)),
+        8.33% calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)),
+        0% calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0))
+    );
 }
 
 .scene-layer-door {
-    clip-path: inset(0% var(--scene-inset) 0% var(--scene-inset));
-    -webkit-clip-path: inset(0% var(--scene-inset) 0% var(--scene-inset));
-}
-
-.scene-layer-shutter {
-    clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
-    -webkit-clip-path: inset(var(--scene-inset) 0% var(--scene-inset) 0%);
+    clip-path: polygon(
+        calc(var(--scene-inset) - 2% * var(--seam-amp, 0)) 100%,
+        calc(var(--scene-inset) - 2% * var(--seam-amp, 0)) 91.67%,
+        calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)) 91.67%,
+        calc(var(--scene-inset) - 3.4% * var(--seam-amp, 0)) 83.33%,
+        calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)) 83.33%,
+        calc(var(--scene-inset) - 1.2% * var(--seam-amp, 0)) 75%,
+        calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)) 75%,
+        calc(var(--scene-inset) - 2.6% * var(--seam-amp, 0)) 66.67%,
+        calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)) 66.67%,
+        calc(var(--scene-inset) - 4.8% * var(--seam-amp, 0)) 58.33%,
+        calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)) 58.33%,
+        calc(var(--scene-inset) - 1.8% * var(--seam-amp, 0)) 50%,
+        calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)) 50%,
+        calc(var(--scene-inset) - 3.8% * var(--seam-amp, 0)) 41.67%,
+        calc(var(--scene-inset) - 1% * var(--seam-amp, 0)) 41.67%,
+        calc(var(--scene-inset) - 1% * var(--seam-amp, 0)) 33.33%,
+        calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)) 33.33%,
+        calc(var(--scene-inset) - 2.2% * var(--seam-amp, 0)) 25%,
+        calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)) 25%,
+        calc(var(--scene-inset) - 4.4% * var(--seam-amp, 0)) 16.67%,
+        calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)) 16.67%,
+        calc(var(--scene-inset) - 1.4% * var(--seam-amp, 0)) 8.33%,
+        calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)) 8.33%,
+        calc(var(--scene-inset) - 3.2% * var(--seam-amp, 0)) 0%,
+        calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)) 0%,
+        calc(100% - var(--scene-inset) + 4.8% * var(--seam-amp, 0)) 8.33%,
+        calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)) 8.33%,
+        calc(100% - var(--scene-inset) + 2.6% * var(--seam-amp, 0)) 16.67%,
+        calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)) 16.67%,
+        calc(100% - var(--scene-inset) + 1.2% * var(--seam-amp, 0)) 25%,
+        calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)) 25%,
+        calc(100% - var(--scene-inset) + 3.4% * var(--seam-amp, 0)) 33.33%,
+        calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)) 33.33%,
+        calc(100% - var(--scene-inset) + 2% * var(--seam-amp, 0)) 41.67%,
+        calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)) 41.67%,
+        calc(100% - var(--scene-inset) + 3.2% * var(--seam-amp, 0)) 50%,
+        calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)) 50%,
+        calc(100% - var(--scene-inset) + 1.4% * var(--seam-amp, 0)) 58.33%,
+        calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)) 58.33%,
+        calc(100% - var(--scene-inset) + 4.4% * var(--seam-amp, 0)) 66.67%,
+        calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)) 66.67%,
+        calc(100% - var(--scene-inset) + 2.2% * var(--seam-amp, 0)) 75%,
+        calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)) 75%,
+        calc(100% - var(--scene-inset) + 1% * var(--seam-amp, 0)) 83.33%,
+        calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)) 83.33%,
+        calc(100% - var(--scene-inset) + 3.8% * var(--seam-amp, 0)) 91.67%,
+        calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)) 91.67%,
+        calc(100% - var(--scene-inset) + 1.8% * var(--seam-amp, 0)) 100%
+    );
 }
 
 .scene-markers {
@@ -235,38 +359,8 @@ body {
 /* HERO SCROLL CUE                                   */
 /* ================================================== */
 
-.hero-scroll-cue-slot {
-    margin-top: var(--space-lg);
-    display: flex;
-    align-items: center;
-    min-height: 1.2rem;
-}
-
-.hero-scroll-cue-static {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.65rem;
-
-    appearance: none;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-
-    font-size: clamp(0.76rem, 1vw, 0.9rem);
-    line-height: 1;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.hero-scroll-cue-initial {
-    display: none;
-}
-
+/* the bare arrow that fades in at the foot of the screen as the hero's own
+   ways scroll out of reach */
 .hero-scroll-cue-bottom {
     position: fixed;
     z-index: 90;
@@ -276,8 +370,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.4rem;
+    height: 2.4rem;
 
     appearance: none;
     border: 0;
@@ -292,14 +386,11 @@ body {
     mix-blend-mode: difference;
 }
 
-.hero-scroll-cue-mobile {
-    display: none;
-}
-
+/* the drawn arrow (Arrow.tsx), sized off the button's inherited type */
 .hero-scroll-arrow {
-    display: inline-block;
-    font-size: 1.15em;
-    line-height: 1;
+    display: block;
+    width: 0.66em;
+    height: 1.05em;
     animation: hero-arrow-bounce 1.7s ease-in-out infinite;
 }
 
@@ -318,37 +409,6 @@ body {
 }
 
 @media (max-width: 900px) {
-    .hero-scroll-cue-static {
-        font-size: 0.72rem;
-    }
-
-    .hero-scroll-cue-slot {
-        display: none;
-    }
-
-    .hero-scroll-cue-mobile {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.65rem;
-        margin: var(--space-sm) auto 0;
-
-        appearance: none;
-        border: 0;
-        padding: 0;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-
-        font-size: 0.72rem;
-        line-height: 1;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        cursor: pointer;
-        opacity: 0.8;
-    }
-
     .hero-scroll-cue-bottom {
         bottom: 1.5rem;
     }
@@ -379,6 +439,10 @@ body {
         animation: none;
     }
 
+    .wave-bar {
+        animation: none;
+    }
+
     .site-header {
         transition: none;
     }
@@ -388,44 +452,62 @@ body {
 /* HERO                                              */
 /* ================================================== */
 
+/* One measure, three rows: masthead, reel, ways onward. */
 .hero-inner {
     position: relative;
     z-index: 1;
-    width: min(1280px, 92vw);
+    width: min(1180px, 90vw);
 
-    display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: 3vw;
-    align-items: center;
+    /* The wordmark's ink box (leading of the second line + one cap height) is
+       the unit: the mark is sized to it, so it cap-aligns with JOSHUA and
+       lands on WHATMAN's baseline. Breakpoints retune the title size and the
+       gap; the mark follows. */
+    --hero-title-size: clamp(2.45rem, 10.5vmin, 7.65rem);
+    --hero-title-leading: 0.71;
+    --hero-cap: 0.7; /* Agdasima's cap height in em, measured off the rendered face */
+    --hero-logo-size: calc(
+        var(--hero-title-size) * (var(--hero-title-leading) + var(--hero-cap))
+    );
+    --hero-logo-gap: clamp(1.1rem, 2.2vw, 2.25rem);
+
+    /* How far the entrance mask on each name line reaches past the line box.
+       A leading this tight is smaller than the face's own content box, so the
+       baseline lands *below* the line box and a mask clipped to it shears the
+       feet off both words. Read in em of the title (see `.hero-line`), and
+       generous rather than fitted: the mask reaches this far and `hero-rise`
+       starts this much further down, so no face can outgrow it. */
+    --hero-line-bleed: 0.18em;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
 }
 
-.hero-copy {
-    position: relative;
-    min-width: 0;
-}
-
-.hero-title-row {
-    position: relative;
-    min-width: 0;
+/* the name at the left, the discipline set against it at the right, both
+   sitting on the same baseline */
+.hero-masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 4vw, 4rem);
 }
 
 .hero-name-row {
     display: grid;
-    grid-template-columns: clamp(5.5rem, 9vw, 8rem) minmax(0, 1fr);
-    align-items: stretch;
-    column-gap: clamp(1.2rem, 2.5vw, 2.5rem);
-    width: 100%;
+    grid-template-columns: var(--hero-logo-size) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--hero-logo-gap);
+    min-width: 0;
 }
 
 .hero-logo {
     width: 100%;
-    aspect-ratio: 1;
-    align-self: stretch;
+    height: var(--hero-logo-size);
+    align-self: start;
 
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
     min-width: 0;
 }
 
@@ -435,8 +517,8 @@ body {
     height: 100%;
     background-color: var(--cream);
 
-    -webkit-mask-image: url("/logo.png");
-    mask-image: url("/logo.png");
+    -webkit-mask-image: url("/logo.svg");
+    mask-image: url("/logo.svg");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
@@ -445,123 +527,164 @@ body {
     mask-size: contain;
 }
 
+/* A column of flex items, not blocks: the lines carry the negative margins
+   that pull `--hero-line-bleed` back off the layout, and adjoining negative
+   block margins would collapse to one of them and open the stack by a bleed. */
 .hero-title {
+    display: flex;
+    flex-direction: column;
     margin: 0;
-    font-size: clamp(2rem, 8.5vmin, 6.2rem);
-    line-height: 0.88;
+    font-size: var(--hero-title-size);
+    line-height: var(--hero-title-leading);
     letter-spacing: 0.01em;
     min-width: 0;
 }
 
-.hero-title-block {
-    position: relative;
-    min-width: 0;
-}
-
 .hero-eyebrow {
-    margin: var(--space-md) 0 0;
-    font-size: clamp(0.72rem, 0.95vw, 0.9rem);
-    line-height: 1.5;
-    letter-spacing: 0.13em;
+    margin: 0 0 0.4em;
+    text-align: right;
+    font-size: clamp(0.64rem, 0.85vw, 0.8rem);
+    line-height: 1.9;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    opacity: 0.75;
+    opacity: 0.55;
+    white-space: nowrap;
 }
 
-.hero-reel {
-    min-width: 0;
-    width: 100%;
+.hero-eyebrow-line {
+    display: block;
 }
 
-.hero-reel-caption {
-    margin: var(--space-xs) 0 0;
-    font-size: 0.84rem;
-    line-height: 1.45;
-    letter-spacing: 0.05em;
-    opacity: 0.7;
+/* the two quiet ways out of the hero, pushed to opposite ends of the measure */
+.hero-ways {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    flex-wrap: wrap;
+}
+
+.hero-way {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+
+    appearance: none;
+    border: 0;
+    padding: 0.35rem 0;
+    margin: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+
+    font-size: clamp(0.7rem, 0.92vw, 0.84rem);
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+
+    opacity: 0.78;
+    transition: opacity 0.2s ease;
+}
+
+.hero-way:hover,
+.hero-way:focus-visible {
+    opacity: 1;
+}
+
+.hero-way-arrow {
+    display: inline-block;
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* the drawn arrow (Arrow.tsx), cap height tall; the caps' own centre sits a
+   hair above the line box's, so it rides up to meet them */
+.hero-way-arrow-down {
+    position: relative;
+    top: -0.04em;
+    width: 0.5em;
+    height: 0.8em;
+}
+
+.hero-ways .hero-way:first-child:hover .hero-way-arrow {
+    transform: translateY(3px);
+}
+
+.hero-ways .hero-way:last-child:hover .hero-way-arrow {
+    transform: translateX(4px);
 }
 
 @media (max-width: 1100px) {
     .hero-inner {
-        width: min(1200px, 90vw);
-        gap: 2.5vw;
-    }
+        width: min(1100px, 90vw);
 
-    .hero-name-row {
-        grid-template-columns: clamp(4.5rem, 8vw, 6.5rem) minmax(0, 1fr);
-        column-gap: 1.2rem;
-    }
-
-    .hero-title {
-        font-size: clamp(2.6rem, min(6vw, 8vh), 5rem);
+        --hero-title-size: clamp(3.2rem, min(7.4vw, 9.9vh), 6.15rem);
+        --hero-logo-gap: 1.15rem;
     }
 }
 
 @media (max-width: 900px) {
     .hero-inner {
-        grid-template-columns: 1fr;
-        gap: var(--space-lg);
-        width: min(700px, 88vw);
+        width: min(640px, 90vw);
+        gap: var(--space-md);
         text-align: center;
+
+        --hero-title-size: clamp(2.7rem, min(13.6vw, 13.6vh), 4.9rem);
+        --hero-logo-gap: clamp(1rem, 3vw, 1.5rem);
     }
 
-    .hero-copy {
-        width: 100%;
-    }
-
-    .hero-title-row {
-        width: 100%;
+    .hero-masthead {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-sm);
     }
 
     .hero-name-row {
         width: fit-content;
         max-width: 100%;
         margin: 0 auto;
-        grid-template-columns: clamp(4rem, 14vw, 6rem) minmax(0, auto);
-        column-gap: clamp(1rem, 3vw, 1.5rem);
+        grid-template-columns: var(--hero-logo-size) minmax(0, auto);
         text-align: left;
     }
 
-    .hero-title {
-        font-size: clamp(2.2rem, min(11vw, 11vh), 4rem);
-    }
-
-    .hero-logo {
-        width: 100%;
-        height: auto;
-    }
-
-    .hero-title-block {
+    /* the two lines fold back into one centred rule */
+    .hero-eyebrow {
+        margin: 0;
         text-align: center;
     }
 
-    .hero-reel {
-        width: 100%;
+    .hero-eyebrow-line {
+        display: inline;
+    }
+
+    .hero-eyebrow-line + .hero-eyebrow-line::before {
+        content: "·";
+        margin: 0 0.6em;
+        opacity: 0.6;
+    }
+
+    .hero-ways {
+        flex-direction: column;
+        gap: var(--space-sm);
     }
 }
 
 @media (max-width: 500px) {
     .hero-inner {
         width: 90vw;
-        gap: var(--space-lg);
+
+        --hero-title-size: clamp(2.45rem, min(14.8vw, 14.8vh), 4.2rem);
+        --hero-logo-gap: 0.85rem;
     }
 
     .hero-name-row {
-        grid-template-columns: clamp(3rem, 16vw, 4.5rem) minmax(0, 1fr);
-        column-gap: 0.85rem;
         width: 100%;
     }
 
-    .hero-title {
-        font-size: clamp(2rem, min(12vw, 12vh), 3.4rem);
-    }
-
     .hero-eyebrow {
-        margin-top: var(--space-sm);
-        font-size: 0.66rem;
-    }
-
-    .hero-scroll-cue-mobile {
-        font-size: 0.62rem;
+        font-size: 0.6rem;
+        letter-spacing: 0.18em;
     }
 }
 
@@ -584,28 +707,20 @@ body {
 
 .work-title {
     margin: 0;
-    font-size: clamp(2rem, 9vmin, 5.5rem);
-    line-height: 0.9;
+    font-size: clamp(2.45rem, 11.1vmin, 6.8rem);
+    line-height: 0.73;
 }
 
-.work-grid {
+/* the deck: one monitor, one cue list. However many videos a category grows
+   to, there is exactly one player; the list scrolls inside its cap. */
+.work-deck {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(220px, 0.85fr);
-    gap: var(--space-md);
+    grid-template-columns: minmax(0, 1.7fr) minmax(250px, 1fr);
+    gap: clamp(1.2rem, 3vw, 3rem);
+    align-items: start;
 }
 
-.work-main,
-.work-extra {
-    min-width: 0;
-}
-
-.work-extras {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-}
-
-.work-card {
+.work-monitor {
     min-width: 0;
 }
 
@@ -617,15 +732,96 @@ body {
     opacity: 0.75;
 }
 
-.work-carousel-controls {
-    display: none;
+.cue-list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    /* never taller than the monitor's ballpark — beyond that it scrolls */
+    max-height: calc(var(--video-cap) + 4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, currentColor 25%, transparent) transparent;
+}
+
+.cue-list-head {
+    margin: 0 0 0.7rem;
+    font-size: 0.62rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+.cue-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.85rem 0.4rem;
+
+    appearance: none;
+    border: 0;
+    margin: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    opacity: 0.6;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.cue-row:last-child {
+    border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.cue-row:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.cue-row-active {
+    opacity: 1;
+}
+
+/* the loaded cue's index goes tally-red */
+.cue-row-active .cue-index {
+    color: #c25548;
+    opacity: 1;
+}
+
+.cue-index {
+    font-size: 0.66rem;
+    line-height: 1.4;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+
+.cue-title {
+    font-size: 0.74rem;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.cue-meta {
+    font-size: 0.64rem;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 /* ================================================== */
-/* WORK CAROUSEL                                    */
+/* WORK — SMALL SCREENS                              */
 /* ================================================== */
 
-/* desktop: main/extras layout, mobile/narrow: carousel */
+/* the deck stacks: monitor on top, cue list under it */
 @media (max-width: 900px) {
     .work-heading {
         margin-bottom: var(--space-sm);
@@ -633,112 +829,31 @@ body {
     }
 
     .work-title {
-        font-size: clamp(1.7rem, min(9vw, 9vh), 2.6rem);
+        font-size: clamp(2.1rem, min(11.1vw, 11.1vh), 3.2rem);
     }
 
-    .work-grid {
+    .work-deck {
         display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 0;
-        width: 100%;
-
-        overflow-x: auto;
-        overflow-y: hidden;
-        overscroll-behavior-x: contain;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-
-        padding: 0 10vw 0 0;
+        flex-direction: column;
+        gap: var(--space-md);
     }
 
-    .work-grid::-webkit-scrollbar {
-        display: none;
+    .cue-list {
+        max-height: 34vh;
     }
 
-    .work-main,
-    .work-extra {
-        flex: 0 0 86vw;
-        width: 86vw;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        min-width: 0;
-    }
-
-    .work-extras {
-        display: contents;
+    .cue-row {
+        padding: 0.7rem 0.2rem;
+        gap: 0.7rem;
     }
 
     .work-caption {
         margin-top: 0.45rem;
-        width: 100%;
-        padding: 0 1.5rem;
-        box-sizing: border-box;
-        text-align: center;
-
         font-size: 0.66rem;
         line-height: 1.35;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .work-carousel-controls {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 0.8rem;
-        width: 100%;
-        margin-top: 0.9rem;
-        padding-right: 0.1rem;
-        box-sizing: border-box;
-        color: currentColor;
-    }
-
-    .work-carousel-arrow {
-        appearance: none;
-        border: 0;
-        padding: 0;
-        margin: 0;
-        width: 2rem;
-        height: 2rem;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        font-size: 1.25rem;
-        line-height: 1;
-        cursor: pointer;
-
-        opacity: 0.8;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .work-carousel-arrow:hover:not(:disabled) {
-        opacity: 1;
-        transform: translateX(2px);
-    }
-
-    .work-carousel-arrow:first-child:hover:not(:disabled) {
-        transform: translateX(-2px);
-    }
-
-    .work-carousel-arrow:disabled {
-        opacity: 0.2;
-        cursor: default;
-    }
-
-    .work-carousel-count {
-        min-width: 4rem;
-        text-align: center;
-        font-size: 0.62rem;
-        line-height: 1;
-        letter-spacing: 0.1em;
-        opacity: 0.55;
     }
 
     .video-play {
@@ -758,6 +873,87 @@ body {
         bottom: 8px;
         font-size: 0.6rem;
     }
+
+    .video-duration {
+        right: 10px;
+        bottom: 8px;
+        font-size: 0.6rem;
+    }
+}
+
+/* ================================================== */
+/* WAVEFORM                                          */
+/* ================================================== */
+
+/* One signal, three slots: the hero's transport bar, the player's cueing
+   state, and work posters with no art yet. Bars are frozen mid-animation at
+   idle (negative delays scatter the phases, so the freeze frame still reads as
+   a real waveform) and cost nothing until a slot says they may run. Each slot
+   owns the box: `--wave-height` is the bar height as a share of it. */
+.wave-bar {
+    flex: 1 1 0;
+    min-width: 1px;
+    height: calc(var(--bar-scale, 0.5) * var(--wave-height, 30%));
+    background: currentColor;
+
+    transform-origin: center;
+    animation: wave-dance 1.05s ease-in-out infinite;
+    animation-delay: var(--bar-delay, 0ms);
+    animation-play-state: paused;
+}
+
+@keyframes wave-dance {
+    0%, 100% {
+        transform: scaleY(0.4);
+    }
+
+    50% {
+        transform: scaleY(1.45);
+    }
+}
+
+/* Touch can't hover, so the reward for reaching for a wave never arrives and
+   the signal would sit frozen for the whole visit. There it runs by itself —
+   but not the hover dance, which at 128 bars reads as static. One crest walks
+   the strip instead, a scrub head passing over the signal, because the delay
+   climbs with the bar's position (`--bar-progress`) rather than scattering.
+   Cheap by construction: transform and opacity only, one keyframe rule for
+   every bar on the site, and nothing runs on a scene that isn't on screen. */
+@keyframes wave-sweep {
+    0%, 76% {
+        transform: scaleY(0.72);
+        opacity: 0.5;
+        /* the head arrives quickly and softens at the top */
+        animation-timing-function: ease-out;
+    }
+
+    88% {
+        transform: scaleY(calc(0.72 + 0.66 * var(--bar-env, 1)));
+        opacity: calc(0.5 + 0.5 * var(--bar-env, 1));
+        animation-timing-function: ease-in;
+    }
+
+    100% {
+        transform: scaleY(0.72);
+        opacity: 0.5;
+    }
+}
+
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .scene-layer:not([data-scene-state="hidden"]) .reel-bar .wave-bar,
+    .scene-layer:not([data-scene-state="hidden"]) .video-placeholder .wave-bar {
+        /* how much of the lift this bar is allowed: nothing at either end of the
+           strip, everything from an eighth of the way in. Without it the crest
+           wraps — lit at both edges at once — and the head stops reading as one
+           thing travelling. With it the ring fires, the crest grows out of the
+           head, crosses, and dies into the runtime. */
+        --bar-env: min(1, calc(var(--bar-progress, 0) * 8), calc((1 - var(--bar-progress, 0)) * 8));
+
+        animation-name: wave-sweep;
+        animation-duration: var(--sweep-period, 2.9s);
+        animation-delay: calc((var(--bar-progress, 0) - 1) * var(--sweep-period, 2.9s));
+        animation-play-state: running;
+    }
 }
 
 /* ================================================== */
@@ -772,10 +968,6 @@ body {
     border-left: 3px solid currentColor;
     width: min(100%, calc(var(--video-cap) * 16 / 9));
     margin-inline: auto;
-}
-
-.work-extra .video-frame {
-    width: min(100%, calc(var(--video-cap-sm) * 16 / 9));
 }
 
 .video-iframe {
@@ -811,6 +1003,60 @@ body {
     z-index: 0;
 
     transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+/* poster waveform, shown when a reel has no art yet */
+.video-wave {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 9%;
+
+    color: var(--cream);
+    opacity: 0.4;
+    transition: opacity 0.35s ease;
+}
+
+.video-placeholder:hover .video-wave,
+.video-placeholder:focus-visible .video-wave {
+    opacity: 0.85;
+}
+
+.video-placeholder:hover .wave-bar,
+.video-placeholder:focus-visible .wave-bar {
+    animation-play-state: running;
+}
+
+/* a poster on a phone gets the same live signal as the hero's bar, one beat
+   quicker — it's a smaller box, so the crest has less ground to cover */
+@media (hover: none) {
+    .video-placeholder {
+        --sweep-period: 2.2s;
+    }
+
+    .video-wave {
+        opacity: 0.6;
+    }
+}
+
+.video-duration {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    z-index: 4;
+
+    font-size: 0.76rem;
+    line-height: 1.4;
+    letter-spacing: 0.07em;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.2s ease;
+}
+
+.video-placeholder:hover .video-duration {
+    color: rgba(255, 255, 255, 1);
 }
 
 .video-thumbnail-overlay {
@@ -894,89 +1140,544 @@ body {
 /* ABOUT                                             */
 /* ================================================== */
 
+/* A spread, not a caption over a photo: the copy on the left, the evidence on
+   the right. The two columns stretch to one height, so the still is exactly
+   as tall as the copy leaves it. The padding keeps everything clear of the
+   nav and the playhead chrome at the foot, whatever the viewport height. */
 .about-inner {
     position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.about-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.about-bg img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: right center;
-    opacity: 0.47;
-}
-
-.about-content {
-    position: relative;
     z-index: 1;
-    width: min(1100px, 88vw);
-    color: var(--cream);
+    box-sizing: border-box;
+    width: min(1180px, 90vw);
+    height: 100%;
+    padding: clamp(4rem, 9vh, 6rem) 0;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    align-content: center;
+    align-items: stretch;
+    column-gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+/* ---- the copy ---- */
+
+/* the kicker and title sit on the still's top edge, the CTA on the strip's
+   foot, and whatever height the evidence column adds is split evenly either
+   side of the body (the two auto margins) */
+.about-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .about-kicker {
-    margin: 0 0 1.5rem;
-    font-size: 0.82rem;
-    letter-spacing: 0.2em;
-    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0 0 var(--space-md);
+
+    font-size: clamp(0.64rem, 0.8vw, 0.74rem);
+    line-height: 1;
+    letter-spacing: 0.24em;
+    white-space: nowrap;
+}
+
+/* gives way before the words do, but never to nothing */
+.about-kicker-rule {
+    flex: 0 1 2rem;
+    min-width: 0.6rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
 }
 
 .about-title {
-    margin: 0 0 var(--space-lg);
-    font-size: clamp(2rem, 9vmin, 7rem);
-    line-height: 0.88;
+    margin: 0 0 var(--space-md);
+    font-size: clamp(1.9rem, min(3.2vw, 5.4vh), 3.4rem);
+    line-height: 0.92;
     letter-spacing: 0.01em;
-    color: var(--cream);
 }
 
-.about-copy {
-    width: min(760px, 100%);
+/* each line rises out of its own mask, the way the name does on the hero */
+.about-line {
+    display: block;
+    overflow: hidden;
 }
 
-.about-copy p {
+.about-line-inner {
+    display: block;
+}
+
+/* the full stop lands on the one accent, like the contact scene's */
+.about-period {
+    color: #c25548;
+}
+
+.about-body {
+    max-width: 34em;
+    margin: auto 0 var(--space-md);
+}
+
+.about-body p {
     margin: 0 0 var(--space-sm);
-    font-size: clamp(1.05rem, min(1.8vw, 2.6vh), 1.45rem);
-    line-height: 1.55;
-    letter-spacing: -0.01em;
-    color: var(--cream);
+    font-size: clamp(0.86rem, min(1.05vw, 2.1vh), 1rem);
+    line-height: 1.62;
+    letter-spacing: -0.005em;
+    opacity: 0.82;
 }
 
-.about-copy .about-lead {
-    font-size: clamp(1.25rem, min(2.4vw, 3.4vh), 1.9rem);
-    line-height: 1.35;
-    font-weight: 700;
+.about-body p:last-child {
+    margin-bottom: 0;
 }
 
-@media (max-width: 700px) {
-    .about-content {
-        width: 88vw;
+.about-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    align-self: flex-start;
+    margin-top: auto;
+
+    appearance: none;
+    border: 1px solid rgba(244, 239, 224, 0.35);
+    padding: 0.85rem 1.25rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+
+    font-size: clamp(0.7rem, 0.92vw, 0.84rem);
+    line-height: 1;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.about-cta:hover,
+.about-cta:focus-visible {
+    background: var(--cream);
+    border-color: var(--cream);
+    color: var(--ink);
+}
+
+.about-cta-arrow {
+    display: inline-block;
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.about-cta:hover .about-cta-arrow {
+    transform: translateX(4px);
+}
+
+/* ---- the evidence ---- */
+
+.about-side {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: clamp(340px, 54vh, 580px);
+}
+
+/* the photo as a still in its own frame — a hairline, crop ticks, a caption.
+   It takes whatever height the facts and the channels leave it. */
+.about-still {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid rgba(244, 239, 224, 0.2);
+    background: #000;
+}
+
+.about-still img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* him, at the desk */
+    object-position: 70% 42%;
+    filter: brightness(0.88) contrast(1.04);
+}
+
+.about-still:hover img {
+    filter: brightness(1) contrast(1.04);
+}
+
+.about-still-ticks {
+    position: absolute;
+    inset: 7px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.about-still-ticks i {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(244, 239, 224, 0.6);
+}
+
+.about-still-ticks i:nth-child(1) {
+    top: 0;
+    left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.about-still-ticks i:nth-child(2) {
+    top: 0;
+    right: 0;
+    border-left: 0;
+    border-bottom: 0;
+}
+
+.about-still-ticks i:nth-child(3) {
+    bottom: 0;
+    left: 0;
+    border-right: 0;
+    border-top: 0;
+}
+
+.about-still-ticks i:nth-child(4) {
+    bottom: 0;
+    right: 0;
+    border-left: 0;
+    border-top: 0;
+}
+
+.about-still-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.2rem 1.1rem 0.9rem;
+
+    font-size: 0.6rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+}
+
+/* the hard facts: three tiles, each off its own hairline like a channel strip */
+.about-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin: var(--space-md) 0 0;
+}
+
+.about-fact {
+    margin: 0;
+    padding-left: 0.85rem;
+    border-left: 1px solid rgba(244, 239, 224, 0.25);
+}
+
+.about-fact dt {
+    margin: 0 0 0.5rem;
+    font-size: clamp(0.56rem, 0.68vw, 0.62rem);
+    line-height: 1;
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+    opacity: 0.55;
+}
+
+.about-fact dd {
+    margin: 0;
+    font-size: clamp(1.25rem, min(1.9vw, 3vh), 1.8rem);
+    line-height: 0.9;
+    white-space: nowrap;
+}
+
+/* the disciplines as a strip of channels, an LED on each */
+.about-channels {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: var(--space-md) 0 0;
+    padding: 0;
+}
+
+.about-channel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid rgba(244, 239, 224, 0.2);
+
+    font-size: 0.6rem;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+    cursor: default;
+
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.about-channel:hover {
+    border-color: rgba(244, 239, 224, 0.55);
+    background: rgba(244, 239, 224, 0.05);
+}
+
+/* the LED is dim until the scene lands, then the channels arm one after
+   another. Hovering runs one hot — the red is a layer over the LED, so the
+   arming delay never holds the hover back */
+.about-channel-led {
+    --arm-delay: 0s;
+
+    position: relative;
+    width: 5px;
+    height: 5px;
+    background: rgba(244, 239, 224, 0.2);
+    transition: background-color 0s linear var(--arm-delay), box-shadow 0s linear var(--arm-delay);
+}
+
+.about-channel-led::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #c25548;
+    box-shadow: 0 0 6px rgba(194, 85, 72, 0.9);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.about-channel:hover .about-channel-led::after {
+    opacity: 1;
+}
+
+/* ---- the entrance ---- */
+
+/* Everything waits in the wings, then comes on once the doors are a third of
+   the way open (`about-live`, set from the playhead). Transitions rather than
+   animations, so leaving the scene plays it back out instead of snapping. */
+.about-line-inner {
+    transform: translateY(108%);
+    transition: transform 0.35s ease;
+}
+
+.about-kicker,
+.about-body,
+.about-cta,
+.about-facts,
+.about-channels {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.about-still img {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.4s ease, filter 0.6s ease;
+}
+
+.about-still-caption {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.about-live .about-line-inner {
+    transform: none;
+    transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.08s;
+}
+
+.about-live .about-line-second {
+    transition-delay: 0.17s;
+}
+
+.about-live .about-kicker {
+    opacity: 0.55;
+    transform: none;
+    transition: opacity 0.6s ease 0.05s, transform 0.6s ease 0.05s;
+}
+
+.about-live .about-body {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.6s ease 0.32s, transform 0.6s ease 0.32s;
+}
+
+.about-live .about-cta {
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity 0.6s ease 0.46s,
+        transform 0.6s ease 0.46s,
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.about-live .about-still img {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s, filter 0.6s ease;
+}
+
+.about-live .about-still-caption {
+    opacity: 0.8;
+    transition: opacity 0.5s ease 0.85s;
+}
+
+.about-live .about-facts {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s;
+}
+
+.about-live .about-channels {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.6s ease 0.6s, transform 0.6s ease 0.6s;
+}
+
+.about-live .about-channel-led {
+    --arm-delay: calc(var(--channel-i) * 70ms + 700ms);
+
+    background: var(--cream);
+    box-shadow: 0 0 6px rgba(244, 239, 224, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .about-inner .about-line-inner {
+        transform: none;
+        transition: none;
+    }
+
+    .about-inner .about-kicker {
+        opacity: 0.55;
+        transform: none;
+        transition: none;
+    }
+
+    .about-inner :is(.about-body, .about-cta, .about-facts, .about-channels) {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .about-inner .about-still img {
+        clip-path: none;
+        transition: none;
+    }
+
+    .about-inner .about-still-caption {
+        opacity: 0.8;
+        transition: none;
+    }
+
+    .about-inner .about-channel-led {
+        transition: none;
+    }
+}
+
+/* ---- narrow: one column, the still bleeds across the top ---- */
+
+@media (max-width: 900px) {
+    /* the foot clears the scroll cue's arrow as well as the playhead chrome */
+    .about-inner {
+        width: 90vw;
+        padding: 0 0 clamp(4.4rem, 9vh, 5.2rem);
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    /* both columns dissolve so every piece can take its own place in the stack */
+    .about-copy,
+    .about-side {
+        display: contents;
+    }
+
+    .about-kicker {
+        order: 1;
+        margin-bottom: var(--space-sm);
+        font-size: 0.6rem;
+        letter-spacing: 0.18em;
     }
 
     .about-title {
-        margin-bottom: var(--space-md);
-        font-size: clamp(2.4rem, min(13vw, 13vh), 4.5rem);
+        order: 2;
+        margin-bottom: var(--space-sm);
+        font-size: clamp(1.7rem, min(7.6vw, 5.4vh), 2.6rem);
     }
 
-    .about-copy p {
-        font-size: 1.05rem;
+    .about-body {
+        order: 3;
+        max-width: none;
+        margin: 0;
+    }
+
+    .about-body p {
+        font-size: clamp(0.8rem, 2.1vh, 0.92rem);
         line-height: 1.55;
     }
 
-    .about-copy .about-lead {
-        font-size: 1.3rem;
+    .about-facts {
+        order: 4;
+        margin-top: var(--space-md);
+    }
+
+    .about-channels {
+        order: 5;
+        margin-top: var(--space-sm);
+    }
+
+    .about-cta {
+        order: 6;
+        margin-top: var(--space-md);
+    }
+
+    /* the still takes whatever the copy leaves at the top of the screen and
+       dissolves into the ink before the copy starts, so the text sits on
+       black however tall the phone is */
+    .about-still {
+        order: 0;
+        flex: 1 1 0;
+        min-height: 16vh;
+        max-height: 50vh;
+        margin: 0 -5vw var(--space-sm);
+        border: 0;
+        background: transparent;
+
+        -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+    }
+
+    .about-still img {
+        object-position: 70% 35%;
+        filter: brightness(0.8) contrast(1.04);
+    }
+
+    .about-still-ticks,
+    .about-still-caption {
+        display: none;
+    }
+}
+
+/* the narrowest phones: the fact tiles size to their labels */
+@media (max-width: 500px) {
+    .about-facts {
+        grid-template-columns: auto auto auto;
+        justify-content: space-between;
+        gap: 0.6rem;
+    }
+
+    .about-fact dt {
+        letter-spacing: 0.14em;
+    }
+}
+
+/* shorter still: the channels are the first thing to go */
+@media (max-width: 900px) and (max-height: 700px) {
+    .about-channels {
+        display: none;
     }
 }
 
@@ -999,8 +1700,8 @@ body {
 
 .contact-line {
     margin: 0 0 var(--space-lg);
-    font-size: clamp(1.7rem, 8.5vmin, 4.2rem);
-    line-height: 1.02;
+    font-size: clamp(2.1rem, 10.5vmin, 5.2rem);
+    line-height: 0.83;
 }
 
 .contact-link {
@@ -1021,11 +1722,11 @@ body {
 
     width: max-content;
     max-width: 90vw;
-    font-size: 0.68rem;
-    line-height: 1.4;
+    font-size: 0.72rem;
+    line-height: 1.45;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    opacity: 0.35;
+    opacity: 0.5;
     white-space: nowrap;
 }
 
@@ -1040,59 +1741,65 @@ body {
 @media (max-width: 900px) and (max-height: 560px) {
     :root {
         --video-cap: clamp(5rem, 40vh, 14rem);
-        --video-cap-sm: clamp(3.5rem, 22vh, 8rem);
         --space-lg: clamp(0.6rem, 3vh, 1.2rem);
         --space-md: clamp(0.5rem, 2vh, 1rem);
         --space-sm: clamp(0.35rem, 1.4vh, 0.7rem);
         --space-xs: clamp(0.2rem, 0.8vh, 0.4rem);
     }
 
-    /* hero: back to a row, not a stack */
+    /* hero: masthead back to a row, not a stack */
     .hero-inner {
-        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-        gap: 1.2rem;
         width: 94vw;
+        gap: var(--space-sm);
         text-align: left;
+
+        --hero-title-size: clamp(1.6rem, 8.6vh, 3.2rem);
+        --hero-logo-gap: 0.6rem;
     }
 
-    .hero-copy,
-    .hero-title-row {
-        width: auto;
+    .hero-masthead {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 1rem;
     }
 
     .hero-name-row {
-        grid-template-columns: clamp(2rem, 7vh, 3.2rem) minmax(0, 1fr);
-        column-gap: 0.6rem;
+        width: auto;
         margin: 0;
-        text-align: left;
-    }
-
-    .hero-title {
-        font-size: clamp(1.3rem, 7vh, 2.6rem);
-    }
-
-    .hero-title-block {
+        grid-template-columns: var(--hero-logo-size) minmax(0, 1fr);
         text-align: left;
     }
 
     .hero-eyebrow {
-        margin-top: var(--space-xs);
-        font-size: 0.62rem;
+        margin: 0;
+        font-size: 0.55rem;
+        letter-spacing: 0.2em;
+        text-align: right;
     }
 
-    .hero-scroll-cue-mobile {
-        display: none;
+    .hero-eyebrow-line {
+        display: block;
     }
 
-    .hero-reel {
-        width: 100%;
+    .hero-eyebrow-line + .hero-eyebrow-line::before {
+        content: none;
     }
 
-    .hero-reel-caption {
-        font-size: 0.66rem;
+    .hero-ways {
+        flex-direction: row;
+        justify-content: space-between;
     }
 
-    /* work: no carousel */
+    .reel-bar {
+        padding: 0.45rem 0.8rem;
+        gap: 0.8rem;
+    }
+
+    .reel-bar-wave {
+        height: 1.4rem;
+    }
+
+    /* work: monitor and cue list side by side again */
     .work-heading {
         margin-bottom: var(--space-sm);
     }
@@ -1101,26 +1808,33 @@ body {
         font-size: clamp(1.2rem, 7vh, 2rem);
     }
 
-    .work-grid {
+    .work-deck {
         display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(120px, 0.9fr);
+        grid-template-columns: minmax(0, 1.5fr) minmax(140px, 0.9fr);
         gap: var(--space-sm);
-        width: 100%;
-        overflow: visible;
-        padding: 0;
     }
 
-    .work-main,
-    .work-extra {
-        flex: initial;
-        width: auto;
-        scroll-snap-align: none;
+    .cue-list {
+        max-height: 62vh;
     }
 
-    .work-extras {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-sm);
+    .cue-row {
+        padding: 0.45rem 0.2rem;
+        gap: 0.5rem;
+    }
+
+    .cue-title {
+        font-size: 0.6rem;
+    }
+
+    .cue-index,
+    .cue-meta {
+        font-size: 0.55rem;
+    }
+
+    .cue-list-head {
+        font-size: 0.5rem;
+        margin-bottom: 0.4rem;
     }
 
     .work-caption {
@@ -1138,27 +1852,45 @@ body {
         -webkit-box-orient: vertical;
     }
 
-    .work-carousel-controls {
+    /* about: the copy alone; the still, the facts and the channels wait for a
+       taller screen */
+    .about-inner {
+        justify-content: center;
+        padding: 3rem 0 2.6rem;
+    }
+
+    .about-still,
+    .about-facts,
+    .about-channels {
         display: none;
     }
 
-    /* about: tighter type, same layout */
+    .about-kicker {
+        margin-bottom: var(--space-xs);
+    }
+
     .about-title {
-        margin-bottom: var(--space-sm);
-        font-size: clamp(1.6rem, 8vh, 3rem);
+        margin-bottom: var(--space-xs);
+        font-size: clamp(1.3rem, 7vh, 1.9rem);
     }
 
-    .about-copy p {
-        font-size: clamp(0.82rem, 3vh, 1.05rem);
+    .about-body {
+        max-width: 40em;
     }
 
-    .about-copy .about-lead {
-        font-size: clamp(0.95rem, 3.4vh, 1.2rem);
+    .about-body p {
+        font-size: clamp(0.68rem, 2.6vh, 0.84rem);
+        line-height: 1.5;
+    }
+
+    .about-cta {
+        margin-top: var(--space-sm);
+        padding: 0.6rem 0.9rem;
     }
 
     /* contact: tighter type, same layout */
     .contact-line {
-        font-size: clamp(1.3rem, 7vh, 2.2rem);
+        font-size: clamp(1.6rem, 8.6vh, 2.7rem);
     }
 
     .contact-credit {
@@ -1168,10 +1900,1102 @@ body {
 }
 
 /* ================================================== */
+/* REEL BAR                                          */
+/* ================================================== */
+
+/* The hero's primary action, and the only piece of chrome in the scene: a
+   transport strip rather than a 16:9 poster. Play ring at the head, runtime at
+   the tail, the reel's own waveform filling everything between — stretched
+   wide enough that the signal actually reads. Idle it's frozen; reach for it
+   and the signal starts running. Pressing it hands the screen to ReelPlayer. */
+.reel-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(0.9rem, 2vw, 1.6rem);
+    width: 100%;
+
+    appearance: none;
+    margin: 0;
+    padding: clamp(0.7rem, 1.6vh, 1.05rem) clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid rgba(244, 239, 224, 0.22);
+    background: rgba(244, 239, 224, 0.035);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.reel-bar:hover,
+.reel-bar:focus-visible {
+    border-color: rgba(244, 239, 224, 0.55);
+    background: rgba(244, 239, 224, 0.07);
+}
+
+/* touch never fires :hover, so the press itself has to answer */
+.reel-bar:active {
+    border-color: rgba(244, 239, 224, 0.7);
+    background: rgba(244, 239, 224, 0.1);
+}
+
+.reel-bar-play {
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(1.7rem, 3.4vh, 2.2rem);
+    aspect-ratio: 1;
+
+    border: 1px solid rgba(244, 239, 224, 0.45);
+    border-radius: 999px;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.reel-bar:hover .reel-bar-play,
+.reel-bar:focus-visible .reel-bar-play {
+    background: var(--cream);
+    border-color: var(--cream);
+    transform: scale(1.06);
+}
+
+.reel-bar:active .reel-bar-play {
+    background: var(--cream);
+    border-color: var(--cream);
+    transform: scale(0.94);
+}
+
+.reel-bar:active .reel-bar-play-icon {
+    border-left-color: var(--ink);
+}
+
+.reel-bar-play-icon {
+    width: 0;
+    height: 0;
+    margin-left: 3px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid currentColor;
+    transition: border-left-color 0.25s ease;
+}
+
+.reel-bar:hover .reel-bar-play-icon,
+.reel-bar:focus-visible .reel-bar-play-icon {
+    border-left-color: var(--ink);
+}
+
+.reel-bar-label {
+    flex: none;
+    font-size: clamp(0.66rem, 0.85vw, 0.78rem);
+    line-height: 1;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+}
+
+/* the wave takes whatever the label and runtime leave it. Bars peak at 1.45x,
+   so 68% of the box keeps the dance inside its own lane. */
+.reel-bar-wave {
+    --wave-height: 68%;
+
+    flex: 1 1 0;
+    min-width: 0;
+    height: clamp(1.5rem, 3.4vh, 2.3rem);
+
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    opacity: 0.32;
+    transition: opacity 0.3s ease;
+}
+
+.reel-bar:hover .reel-bar-wave,
+.reel-bar:focus-visible .reel-bar-wave {
+    opacity: 0.8;
+}
+
+.reel-bar:active .reel-bar-wave {
+    opacity: 0.95;
+}
+
+.reel-bar:hover .wave-bar,
+.reel-bar:focus-visible .wave-bar {
+    animation-play-state: running;
+}
+
+.reel-bar-time {
+    flex: none;
+    font-size: clamp(0.64rem, 0.8vw, 0.74rem);
+    line-height: 1;
+    letter-spacing: 0.14em;
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+}
+
+.reel-bar:hover .reel-bar-time,
+.reel-bar:focus-visible .reel-bar-time {
+    opacity: 1;
+}
+
+/* THE PHONE'S IDLE STATE. No hover means no approach and no reward, so the bar
+   has to arrive already alive: the ring filled rather than waiting to be lit,
+   the runtime legible, and the signal running its sweep underneath. Read this
+   with `wave-sweep` — the ring fires a beat before the left-most bar lifts, so
+   the play button looks like it's pushing the crest down the strip. */
+@media (hover: none) {
+    .reel-bar {
+        --sweep-period: 2.9s;
+        border-color: rgba(244, 239, 224, 0.3);
+    }
+
+    .reel-bar-play {
+        background: var(--cream);
+        border-color: var(--cream);
+    }
+
+    .reel-bar-play-icon {
+        border-left-color: var(--ink);
+    }
+
+    .reel-bar-play::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border: 1px solid var(--cream);
+        border-radius: 999px;
+        opacity: 0;
+    }
+
+    .reel-bar-wave {
+        opacity: 0.6;
+    }
+
+    .reel-bar-time {
+        opacity: 0.75;
+    }
+}
+
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .reel-bar-play::after {
+        animation: reel-bar-ping var(--sweep-period, 2.9s) linear infinite;
+    }
+}
+
+@keyframes reel-bar-ping {
+    0%, 74% {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    82% {
+        opacity: 0.4;
+        transform: scale(1.03);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+@media (max-width: 560px) {
+    .reel-bar {
+        gap: 0.75rem;
+        padding: 0.7rem 0.85rem;
+    }
+
+    .reel-bar-label {
+        font-size: 0.62rem;
+        letter-spacing: 0.14em;
+    }
+
+    /* thin the signal out rather than letting the bars turn into a smear */
+    .reel-bar-wave {
+        gap: 1px;
+    }
+
+    .reel-bar-wave .wave-bar:nth-child(2n) {
+        display: none;
+    }
+}
+
+/* the wave is the whole point on a phone, so thin the signal rather than drop
+   it: the 560 rule already took every even bar, this takes half of what's left.
+   Thirty-two bars, each four times as wide — still a waveform, still legible. */
+@media (max-width: 420px) {
+    .reel-bar-wave .wave-bar:nth-child(4n + 3) {
+        display: none;
+    }
+
+    .reel-bar-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+    }
+}
+
+/* ================================================== */
+/* REEL PLAYER                                       */
+/* ================================================== */
+
+/* The full-screen frame. Portalled to <body> on purpose: the scene layers are
+   clipped and contained, either of which would trap a fixed overlay inside the
+   hero. --reel-gutter is the vertical room the chrome rows need — it follows
+   the viewport so a laptop in landscape doesn't get a postage stamp. */
+.reel-overlay {
+    --reel-gutter: clamp(5.5rem, 15vh, 8.5rem);
+
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--cream);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+}
+
+.reel-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+
+    /* the page underneath is frozen; don't let a touch drag reach it anyway.
+       Only while it's up: on standby this same layer is invisible, inert and
+       covering the viewport, and it must not eat the page's own scrolling. */
+    overscroll-behavior: contain;
+    touch-action: none;
+}
+
+/* Standby: the overlay is mounted with a live embed inside it, loading ahead of
+   the press. Nothing of it may run — the cueing wave least of all. */
+.reel-overlay:not(.is-open) .wave-bar {
+    animation-play-state: paused;
+}
+
+/* everything outside the frame is one big close button */
+.reel-scrim {
+    position: absolute;
+    inset: 0;
+
+    appearance: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: #050505;
+    cursor: pointer;
+}
+
+.reel-stage {
+    position: relative;
+    z-index: 1;
+
+    width: min(92vw, calc((100vh - var(--reel-gutter)) * 16 / 9));
+    max-height: calc(100vh - var(--reel-gutter));
+    aspect-ratio: 16 / 9;
+    background: #000;
+
+    transform: scale(0.965) translateY(10px);
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* mobile browser chrome comes and goes; follow the visible viewport where we can */
+@supports (height: 100dvh) {
+    .reel-stage {
+        width: min(92vw, calc((100dvh - var(--reel-gutter)) * 16 / 9));
+        max-height: calc(100dvh - var(--reel-gutter));
+    }
+}
+
+.reel-overlay.is-open .reel-stage {
+    transform: none;
+}
+
+.reel-player {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Our own black over the embed until it is genuinely playing — that's what
+   keeps YouTube's unstarted title bar off the screen. It blocks clicks while
+   cueing, and turns click-through while prompting so the press lands on the
+   embed underneath. Once there's a picture it is gone for good: the control
+   bar under it is the visitor's. */
+.reel-cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+    background: #000;
+    transition: opacity 0.22s ease;
+}
+
+.reel-overlay[data-phase="prompt"] .reel-cover {
+    pointer-events: none;
+}
+
+/* the picture owns the screen once it's actually running */
+.reel-overlay[data-phase="playing"] .reel-cover,
+.reel-overlay[data-phase="paused"] .reel-cover {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* one cell, two states, crossfading in place */
+.reel-cueing,
+.reel-prompt {
+    grid-area: 1 / 1;
+    /* fill the cell, so the wave's percentage width has the stage to measure
+       against rather than its own shrink-to-fit parent */
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.reel-overlay[data-phase="cueing"] .reel-cueing,
+.reel-overlay[data-phase="prompt"] .reel-prompt {
+    opacity: 1;
+}
+
+/* the play mark the prompt asks with */
+.reel-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(3.4rem, 7vh, 4.8rem);
+    aspect-ratio: 1;
+
+    border: 1px solid rgba(244, 239, 224, 0.55);
+    border-radius: 999px;
+}
+
+/* it breathes only while it's waiting on the visitor */
+.reel-prompt .reel-mark {
+    animation: reel-mark-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes reel-mark-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: scale(1.06);
+        opacity: 1;
+    }
+}
+
+.reel-mark-icon {
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 15px solid currentColor;
+}
+
+.reel-prompt-label,
+.reel-cueing-label {
+    font-size: 0.58rem;
+    line-height: 1;
+    letter-spacing: 0.34em;
+    opacity: 0.4;
+}
+
+.reel-cueing-wave {
+    --wave-height: 62%;
+
+    width: min(46%, 280px);
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    opacity: 0.45;
+}
+
+.reel-cueing .wave-bar {
+    animation-play-state: running;
+}
+
+/* framing marks — crop ticks just outside the picture, never over it */
+.reel-ticks {
+    position: absolute;
+    inset: -9px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.reel-ticks i {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(244, 239, 224, 0.5);
+}
+
+.reel-ticks i:nth-child(1) {
+    top: 0;
+    left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.reel-ticks i:nth-child(2) {
+    top: 0;
+    right: 0;
+    border-left: 0;
+    border-bottom: 0;
+}
+
+.reel-ticks i:nth-child(3) {
+    bottom: 0;
+    left: 0;
+    border-right: 0;
+    border-top: 0;
+}
+
+.reel-ticks i:nth-child(4) {
+    bottom: 0;
+    right: 0;
+    border-left: 0;
+    border-top: 0;
+}
+
+.reel-close {
+    position: absolute;
+    top: clamp(1rem, 3vh, 2rem);
+    right: clamp(1rem, 3vw, 2.4rem);
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    appearance: none;
+    border: 0;
+    margin: 0;
+    padding: 0.5rem 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    font-size: 0.6rem;
+    line-height: 1;
+    letter-spacing: 0.24em;
+}
+
+.reel-close-mark {
+    position: relative;
+    display: block;
+    width: 13px;
+    height: 13px;
+}
+
+.reel-close-mark::before,
+.reel-close-mark::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reel-close-mark::before {
+    transform: rotate(45deg);
+}
+
+.reel-close-mark::after {
+    transform: rotate(-45deg);
+}
+
+.reel-close:hover .reel-close-mark::before {
+    transform: rotate(135deg);
+}
+
+.reel-close:hover .reel-close-mark::after {
+    transform: rotate(45deg);
+}
+
+/* copy that differs between a pointer and a finger */
+.on-coarse {
+    display: none;
+}
+
+@media (pointer: coarse) {
+    .on-fine {
+        display: none;
+    }
+
+    .on-coarse {
+        display: inline;
+    }
+}
+
+/* the chrome sits up for a beat, then settles into the film. It never leaves —
+   reaching for the close brings the whole set back. */
+.reel-close,
+.reel-ticks {
+    transition: opacity 0.7s ease;
+}
+
+.reel-overlay.is-settled .reel-close,
+.reel-overlay.is-settled .reel-ticks {
+    opacity: 0.4;
+}
+
+.reel-overlay .reel-close:hover,
+.reel-overlay .reel-close:focus-visible {
+    opacity: 1;
+}
+
+@media (max-width: 700px) {
+    .reel-overlay {
+        --reel-gutter: clamp(5rem, 13vh, 6.5rem);
+    }
+
+    .reel-close-label {
+        display: none;
+    }
+
+    .reel-ticks i {
+        width: 11px;
+        height: 11px;
+    }
+}
+
+/* ================================================== */
+/* PLAYHEAD CHROME                                   */
+/* ================================================== */
+
+.playhead-timecode {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    z-index: 60;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
+
+/* the digits difference-blend so they read on every scene; the REC tally sits
+   outside that blend so its red stays red over cream */
+.timecode-digits {
+    color: #fff;
+    mix-blend-mode: difference;
+    opacity: 0.55;
+}
+
+.timecode-rec {
+    color: #c25548;
+    animation: rec-blink 1.6s steps(1) infinite;
+}
+
+@keyframes rec-blink {
+    0% {
+        opacity: 1;
+    }
+
+    55% {
+        opacity: 0.2;
+    }
+}
+
+.sound-toggle {
+    position: fixed;
+    left: 2rem;
+    bottom: 2rem;
+    z-index: 95;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    appearance: none;
+    border: 0;
+    padding: 0.3rem 0;
+    margin: 0;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    mix-blend-mode: difference;
+
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.sound-toggle:hover {
+    opacity: 1;
+}
+
+.sound-toggle-meter {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 11px;
+}
+
+.sound-toggle-bar {
+    width: 3px;
+    height: 100%;
+    background: currentColor;
+    transform-origin: bottom;
+    transform: scaleY(0.25);
+    transition: transform 0.3s ease;
+}
+
+.sound-toggle-on .sound-toggle-bar {
+    animation: sound-bar-dance 0.9s ease-in-out infinite;
+}
+
+.sound-toggle-on .sound-toggle-bar:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.sound-toggle-on .sound-toggle-bar:nth-child(3) {
+    animation-delay: -0.6s;
+}
+
+@keyframes sound-bar-dance {
+    0%, 100% {
+        transform: scaleY(0.3);
+    }
+
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+/* film slate flashing mid-wipe; opacity is written by Slate off the playhead */
+.slate {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+
+    color: #fff;
+    mix-blend-mode: difference;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.slate-line {
+    display: block;
+    padding: 0.5rem 1.4rem;
+    font-size: 0.78rem;
+    line-height: 1;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.slate-line:first-child {
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+}
+
+.slate-take {
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    opacity: 0.75;
+}
+
+@media (max-width: 700px) {
+    .playhead-timecode {
+        right: 1.2rem;
+        bottom: 1.2rem;
+        font-size: 0.6rem;
+    }
+
+    .sound-toggle {
+        left: 1.2rem;
+        bottom: 1.2rem;
+        font-size: 0.6rem;
+    }
+
+    .slate-line {
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+    }
+}
+
+/* ================================================== */
+/* CONTACT METER                                     */
+/* ================================================== */
+
+.contact-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+/* the headline hits a limiter when the email is pressed */
+.contact-line {
+    transform-origin: center bottom;
+    transition: transform 0.09s ease;
+}
+
+.contact-inner:has(.contact-link:active) .contact-line {
+    transform: scaleY(0.93);
+}
+
+.contact-meter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 8px;
+}
+
+.contact-meter-seg {
+    width: 14px;
+    height: 4px;
+    background: var(--cream);
+    opacity: 0.14;
+    transform: scaleY(0.6);
+
+    /* off-state: decay from the right, like a meter falling back */
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    transition-delay: calc((11 - var(--seg-i)) * 26ms);
+}
+
+/* the hot end of the scale */
+.contact-meter-hot {
+    background: #c25548;
+}
+
+.contact-cta:hover .contact-meter-seg,
+.contact-cta:focus-within .contact-meter-seg {
+    opacity: 1;
+    transform: scaleY(1);
+    transition-delay: calc(var(--seg-i) * 24ms);
+}
+
+/* peak LED holds a beat before dropping */
+.contact-meter-seg:last-child {
+    transition-delay: calc((11 - var(--seg-i)) * 26ms + 420ms);
+}
+
+.contact-cta:hover .contact-meter-seg:last-child,
+.contact-cta:focus-within .contact-meter-seg:last-child {
+    transition-delay: calc(var(--seg-i) * 24ms);
+}
+
+/* ================================================== */
+/* POLISH                                            */
+/* ================================================== */
+
+/* captions share their video's capped, centered box (desktop layouts only —
+   the mobile carousel centers captions its own way) */
+@media (min-width: 901px) {
+    .work-monitor .work-caption {
+        width: min(100%, calc(var(--video-cap) * 16 / 9));
+        margin-inline: auto;
+    }
+}
+
+/* hero entrance — name rises out of a masked line, the rest follows */
+
+/* The mask. Clipped to the line box it would cut the name, because the stack's
+   leading is tighter than the face's content box: at 0.71 leading Agdasima
+   puts the baseline 0.75em down, so the last 0.04em of every letter — and all
+   of the J's tail — falls outside the box and disappears. So the mask bleeds
+   `--hero-line-bleed` past the box in both directions and the same bleed comes
+   straight back off as margin: the glyphs get their room, and the stack keeps
+   the leading the logo's ink-box math is derived from. `hero-rise` starts a
+   bleed's worth further down to match. */
+.hero-line {
+    display: block;
+    overflow: hidden;
+    padding-block: var(--hero-line-bleed);
+    margin-block: calc(-1 * var(--hero-line-bleed));
+}
+
+.hero-line-inner {
+    display: block;
+    animation: hero-rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-line-second {
+    animation-delay: 0.09s;
+}
+
+/* 108% of the line box clears an unbled mask; the two bleeds clear this one. */
+@keyframes hero-rise {
+    from {
+        transform: translateY(calc(108% + 2 * var(--hero-line-bleed)));
+    }
+}
+
+/* the hand rises with the name, then waves hello once the name has landed.
+   Entrance on the box, wave on the mark, so neither transform fights the
+   other. The wave pivots at the wrist — 42.5% across the mask's canvas is the
+   palm's point, and just below the box so it swings from the forearm rather
+   than ticking like a metronome. Hovering or tapping the hand seeks this one
+   animation back to its start (Hero.tsx), so its timing lives here only. */
+.hero-logo {
+    animation: hero-logo-rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-logo-mark {
+    transform-origin: 42.5% 110%;
+    animation: hero-wave 1.1s ease-in-out 0.84s both;
+}
+
+@keyframes hero-logo-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14%);
+    }
+}
+
+/* two swings, settling — away from the name first so the fingers never cross it */
+@keyframes hero-wave {
+    20% {
+        transform: rotate(-12deg);
+    }
+    45% {
+        transform: rotate(9deg);
+    }
+    70% {
+        transform: rotate(-5deg);
+    }
+}
+
+.hero-eyebrow {
+    animation: hero-fade 0.6s ease-out 0.3s both;
+}
+
+.reel-bar {
+    animation: hero-fade 0.6s ease-out 0.45s both;
+}
+
+.hero-ways {
+    animation: hero-fade 0.6s ease-out 0.56s both;
+}
+
+@keyframes hero-fade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+/* mono ticker riding the hero's top edge — the session's track list. Fixed,
+   but the scene layer's contain:paint scopes and clips it to the hero, so it
+   wipes away with the scene and never fights the nav. Glacial on purpose. */
+.hero-ticker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(244, 239, 224, 0.12);
+    pointer-events: none;
+
+    animation: hero-fade 0.6s ease-out 0.6s both;
+}
+
+.hero-ticker-track {
+    display: inline-flex;
+    width: max-content;
+    animation: ticker-scroll 90s linear infinite;
+}
+
+.hero-ticker-half {
+    display: inline-block;
+    font-size: 0.62rem;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    opacity: 0.4;
+}
+
+@keyframes ticker-scroll {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 700px) {
+    .hero-ticker {
+        padding: 0.7rem 0;
+    }
+
+    .hero-ticker-half {
+        font-size: 0.55rem;
+    }
+}
+
+/* incoming scene's content settles into place over the last stretch of the wipe */
+.scene-layer[data-scene-state="incoming"] > * {
+    transform: translateY(calc(var(--scene-inset) * 0.35));
+}
+
+/* enormous ghosted scene number behind each work section — poster typography */
+.work-ghost-index {
+    position: absolute;
+    top: -0.146em;
+    right: -0.032em;
+    font-size: clamp(12.3rem, 51.8vmin, 37rem);
+    line-height: 1;
+    opacity: 0.05;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* the about photo drifts, very slowly */
+.about-still img {
+    animation: about-drift 36s ease-in-out infinite alternate;
+}
+
+@keyframes about-drift {
+    from {
+        transform: scale(1.02);
+    }
+
+    to {
+        transform: scale(1.08) translate3d(-1.5%, 1%, 0);
+    }
+}
+
+/* the full stop lands on the one accent the site allows itself */
+.contact-period {
+    color: #c25548;
+}
+
+/* film grain over everything — monochrome SVG noise, jittered at ~5fps */
+.film-grain {
+    position: fixed;
+    inset: -75%;
+    z-index: 30;
+    pointer-events: none;
+
+    opacity: 0.055;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    animation: film-grain-jitter 1.1s steps(6) infinite;
+}
+
+@keyframes film-grain-jitter {
+    to {
+        transform: translate3d(6%, 4%, 0);
+    }
+}
+
+/* a scroll-locked scene stack has a playhead for a scrollbar */
+html {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+::selection {
+    background: #c25548;
+    color: var(--cream);
+}
+
+/* ================================================== */
 /* ACCESSIBILITY                                     */
 /* ================================================== */
 
 *:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slate {
+        display: none;
+    }
+
+    .sound-toggle-on .sound-toggle-bar {
+        animation: none;
+        transform: scaleY(0.8);
+    }
+
+    .reel-bar,
+    .reel-bar-play,
+    .reel-bar-wave,
+    .contact-line,
+    .contact-meter-seg {
+        transition: none;
+    }
+
+    /* the frame still fades in, it just doesn't travel to get there */
+    .reel-stage {
+        transform: none;
+        transition: none;
+    }
+
+    .reel-close-mark::before,
+    .reel-close-mark::after {
+        transition: none;
+    }
+
+    .reel-prompt .reel-mark {
+        animation: none;
+    }
+
+    .hero-line-inner,
+    .hero-logo,
+    .hero-logo-mark,
+    .hero-eyebrow,
+    .reel-bar,
+    .hero-ways,
+    .about-still img,
+    .film-grain,
+    .timecode-rec,
+    .hero-ticker,
+    .hero-ticker-track {
+        animation: none;
+    }
+
+    .scene-layer[data-scene-state="incoming"] > * {
+        transform: none;
+    }
 }
